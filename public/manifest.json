@@ -1,0 +1,32 @@
+{
+  "name": "Jazz/React/Vite - Tiny FullyLoFi To-Do List",
+  "short_name": "Tiny FullyLoFi To-Do List",
+  "description": "Jazz v2 alpha/React 19/Vite - Tiny FullyLoFi To-Do List",
+  "start_url": "/",
+  "display": "standalone",
+  "scope": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#146AFF",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
+
+

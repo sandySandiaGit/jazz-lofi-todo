@@ -1,0 +1,364 @@
+import { useState, useEffect } from "react";
+import { useAll, useDb } from "jazz-tools/react"; 
+import { app, type Todo, type Category } from "./schema";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFilePen, faTrashCan, faPenToSquare, faPlus, faBriefcase, faHouse, faCircleCheck , faCircleDot, faChevronDown } from "@fortawesome/free-solid-svg-icons";
+
+const CATEGORY_ICONS: Record<string, any> = {
+  briefcase: faBriefcase,
+  house: faHouse,
+};
+
+export default function App() {
+
+  const db = useDb();
+  const todos = useAll(app.todos);
+  const categories = useAll(app.categories); 
+  const [newTodoTitle, setNewTodoTitle] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
+  const [activeFilter, setActiveFilter] = useState<string>("all");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [todoToDelete, setTodoToDelete] = useState<string | null>(null);
+
+  useEffect(() => {
+    // To prevent duplicates: 
+    // only run setup if the categories list has finished loading from the disk/Mesh:
+    if (categories) {
+
+      // Check if defaults already exist in the array:
+      const hasWork = categories.some((cat) => cat.name === "Work");
+      const hasPersonal = categories.some((cat) => cat.name === "Personal");
+
+      // Individually seed categories only if they are truly missing:
+      if (!hasWork) {
+        db.insert(app.categories, { name: "Work", color: "indigo", iconKey: "briefcase" });
+      }
+      if (!hasPersonal) {
+        db.insert(app.categories, { name: "Personal", color: "indigo", iconKey: "house" });
+      }
+    }
+  }, [categories, db]); 
+
+  const handleAddTodo = (e: React.BaseSyntheticEvent) => {
+
+    e.preventDefault();
+
+    if (!newTodoTitle.trim()) return;
+
+    db.insert(app.todos, {
+      title: newTodoTitle,
+      done: false,
+      categoryId: selectedCategoryId, 
+    });
+
+    setNewTodoTitle("");
+  };
+
+  const toggleTodo = (id: string, currentStatus: boolean) => {
+    db.update(app.todos, id, { done: !currentStatus });
+  };
+
+  const handleLiveEdit = (id: string, newText: string) => {
+    db.update(app.todos, id, { title: newText });
+  };
+
+  const handleDeleteTodo = (id: string) => {
+    setTodoToDelete(id);
+  };
+
+  const confirmDeleteTodo = () => {
+    if (todoToDelete) {
+      db.delete(app.todos, todoToDelete);
+      setTodoToDelete(null); // Close modal
+    }
+  };
+
+  const filteredTodos = todos?.filter((todo: Todo) => {
+    if (activeFilter === "all") return true;
+    return todo.categoryId === activeFilter;
+  });
+
+  const checkRealConnection = async (timeout = 3000): Promise<boolean> => {
+
+    if (!navigator.onLine) {
+      return false;
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+      await fetch("https://httpbin.org", {
+        method: "HEAD",
+        cache: "no-store", 
+        mode: "no-cors", 
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      console.log("We're really online !!!");
+
+      return true; 
+
+    } catch (error: any) {
+
+      if (error.name === 'AbortError') {
+        console.warn("Lie-fi détected (timeout) !");
+      } else {
+        console.warn("Offline or network error !");
+      }
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    // Run the check immediately on mount:
+    const triggerCheck = async () => {
+      const result = await checkRealConnection();
+      setIsOnline(result);
+    };
+    
+  triggerCheck();
+
+    // Re-verify connection health every 10 seconds automatically:
+    const intervalId = setInterval(triggerCheck, 10000);
+
+    // Also run immediately if the browser fires a native state switch event:
+    const handleOnlineEvent = () => triggerCheck();
+    const handleOfflineEvent = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnlineEvent);
+    window.addEventListener("offline", handleOfflineEvent);
+
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener("online", handleOnlineEvent);
+      window.removeEventListener("offline", handleOfflineEvent);
+    };
+  }, []);
+  
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center p-8">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <FontAwesomeIcon icon={faFilePen} className="text-indigo-600" />
+            <span>Tiny FullyLoFi To-Do List</span>
+          </h1>
+          <div className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-full text-xs font-medium text-slate-600">
+            <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></span>
+            {isOnline ? 'Online' : 'Offline'}
+          </div>
+        </div>
+        <form onSubmit={handleAddTodo} className="flex flex-col gap-2 mb-6">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newTodoTitle}
+              onChange={(e) => setNewTodoTitle(e.target.value)}
+              placeholder="Add a task..."
+              className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm"
+            />
+            <button type="submit" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl text-sm transition-colors flex items-center gap-1">
+              <FontAwesomeIcon icon={faPlus} />
+            </button>
+          </div>
+          <div className="relative w-full">
+            <button
+              type="button"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full flex items-center justify-between px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 outline-none text-left"
+            >
+              <span>
+                {categories?.find(c => c.id === selectedCategoryId)?.name || "No category"}
+              </span>
+              <FontAwesomeIcon 
+                icon={faChevronDown} 
+                className="text-slate-400 text-[10px] transition-transform duration-200" 
+              />
+            </button>
+            {isDropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
+                <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-100 rounded-xl shadow-lg overflow-hidden z-20 py-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategoryId(undefined);
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-xs transition-colors ${
+                      !selectedCategoryId ? "bg-indigo-600 text-white" : "text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    No category
+                  </button>
+                  {categories?.map((cat) => {
+                    const isSelected = cat.id === selectedCategoryId;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCategoryId(cat.id);
+                          setIsDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 text-xs transition-colors ${
+                          isSelected ? "bg-indigo-600 text-white font-medium" : "text-slate-600 hover:bg-indigo-50"
+                        }`}
+                      >
+                        {cat.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+        </form>
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+          <button
+            onClick={() => setActiveFilter("all")}
+            className={`px-3 py-1 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
+              activeFilter === "all" ? "bg-indigo-600 text-white font-extrabold" : "bg-slate-100 text-indigo-600 hover:bg-slate-200 font-extrabold"
+            }`}
+          >
+            All ({todos?.length || 0})
+          </button>
+
+          {categories?.map((cat: Category) => {
+            const count = todos?.filter(t => t.categoryId === cat.id).length || 0;
+            const categoryIcon = CATEGORY_ICONS[cat.iconKey || ""] || faBriefcase;
+            
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setActiveFilter(cat.id)}
+                className={`px-3 py-1 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
+                  activeFilter === cat.id 
+                    ? "bg-indigo-600 text-white" 
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                <FontAwesomeIcon icon={categoryIcon} className="mr-1" />
+                {cat.name} ({count})
+              </button>
+            );
+          })}
+        </div>
+
+        {filteredTodos === undefined ? (
+          <p className="text-center text-sm text-slate-400 py-4">Loading tasks...</p>
+        ) : filteredTodos.length === 0 ? (
+          <p className="text-center text-sm text-slate-400 py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+            No results found...
+          </p>
+        ) : (
+          <ul className="space-y-3">
+            {filteredTodos.map((todo: Todo) => {
+              const attachedCategory = categories?.find(c => c.id === todo.categoryId);
+              const attachedIcon = CATEGORY_ICONS[attachedCategory?.iconKey || ""] || faBriefcase;
+              
+              return (
+                <li key={todo.id} className="flex flex-col p-3 bg-slate-50 rounded-xl border border-slate-100 gap-1 transition-all">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 flex-1">
+                      <button
+                        type="button"
+                        onClick={() => toggleTodo(todo.id, todo.done)}
+                        className={`text-lg transition-colors focus:outline-none ${
+                          todo.done ? "text-indigo-600" : "text-slate-300 hover:text-indigo-400"
+                        }`}
+                      >
+                        <FontAwesomeIcon icon={todo.done ? faCircleCheck : faCircleDot} />
+                      </button>
+                
+                      {editingId === todo.id ? (
+                        <input
+                          type="text"
+                          value={todo.title} 
+                          onChange={(e) => handleLiveEdit(todo.id, e.target.value)}
+                          onBlur={() => setEditingId(null)}
+                          autoFocus
+                          
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === 'Escape') {
+                              e.currentTarget.blur(); 
+                            }
+                          }}
+                          
+                          className="flex-1 bg-white px-2 py-0.5 border border-indigo-300 rounded text-sm text-slate-800 focus:outline-none"
+                        />
+                      ) : (
+                        <span 
+                          onClick={() => setEditingId(todo.id)}
+                          className={`text-sm cursor-pointer hover:text-indigo-600 transition-colors flex-1 ${todo.done ? "line-through text-slate-400" : "text-slate-700"}`}
+                        >
+                          {todo.title} <FontAwesomeIcon icon={faPenToSquare} />
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+
+                      {attachedCategory && (
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-700 whitespace-nowrap flex items-center gap-1.5">
+                          <FontAwesomeIcon icon={attachedIcon} />
+                        </span>
+                      )}
+                      <button
+                        onClick={() => handleDeleteTodo(todo.id)}
+                        className="text-xs p-1 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-rose-50 transition-colors"
+                      >
+                        <FontAwesomeIcon icon={faTrashCan} className="cursor-pointer"/>
+                      </button>
+                      {todoToDelete !== null && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
+                          <div 
+                            className="fixed inset-0 bg-slate-500/10 backdrop-blur-sm"
+                            onClick={() => setTodoToDelete(null)} 
+                          />
+                          <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-xl border border-slate-100 p-5 z-10 transform scale-100 transition-all">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-100 text-sm">
+                                <FontAwesomeIcon icon={faTrashCan} className="text-indigo-600" />
+                              </div>
+                              <div>
+                                <h3 className="text-sm font-semibold text-slate-800">Delete this task?</h3>
+                                <p className="text-xs text-slate-500 mt-0.5">This action cannot be undone.</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-end gap-2 mt-5">
+                              <button
+                                type="button"
+                                onClick={() => setTodoToDelete(null)}
+                                className="bg-indigo-50 px-3 py-1.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                type="button"
+                                onClick={confirmDeleteTodo}
+                                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-xl text-xs font-medium transition-colors shadow-sm shadow-indigo-200"
+                              >
+                                Delete Task
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+

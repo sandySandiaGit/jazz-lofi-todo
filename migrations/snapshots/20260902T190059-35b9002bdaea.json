@@ -1,0 +1,53 @@
+{
+  "todos": {
+    "columns": [
+      {
+        "name": "title",
+        "column_type": {
+          "type": "Text"
+        },
+        "nullable": false
+      },
+      {
+        "name": "done",
+        "column_type": {
+          "type": "Boolean"
+        },
+        "nullable": false
+      },
+      {
+        "name": "categoryId",
+        "column_type": {
+          "type": "Uuid"
+        },
+        "nullable": true,
+        "references": "categories"
+      }
+    ]
+  },
+  "categories": {
+    "columns": [
+      {
+        "name": "name",
+        "column_type": {
+          "type": "Text"
+        },
+        "nullable": false
+      },
+      {
+        "name": "color",
+        "column_type": {
+          "type": "Text"
+        },
+        "nullable": false
+      },
+      {
+        "name": "iconKey",
+        "column_type": {
+          "type": "Text"
+        },
+        "nullable": false
+      }
+    ]
+  }
+}
