@@ -1,6 +1,6 @@
-# Jazz v2 (alpha) and React 19 Fully Local-First To-Do App
+# Jazz v2 (alpha) and React 19 FullyLoFi very tiny To-Do App
 
-A modern, fast, and offline-capable Todo application built with **Jazz.tools v2 (alpha)**, **React 19**, **Vite** and **Tailwind CSS**. 
+A modern, fast, and offline-capable Todo tiny application built with **Jazz.tools v2 (alpha)**, **React 19**, **Vite** and **Tailwind CSS**. 
 
 This project demonstrates a true **Local-First architecture** paired with a custom Cache-First Service Worker to deliver instant UI updates and seamless offline capabilities.
 
@@ -13,7 +13,7 @@ This project demonstrates a true **Local-First architecture** paired with a cust
 * **Automatic Mesh Synchronization:** Background real-time sync with `cloud.jazz.tools` as soon as network connectivity is restored.
 * **Installable PWA:** Includes a web app manifest configured for mobile and desktop PWA installation.
 
->**Note:** This project was intentionally built using **Jazz v2 (Alpha)** to explore the cutting edge of Local-First web development, despite potential API changes before the final release!
+>**Note:** This project was intentionally built using **Jazz v2 (Alpha)** to explore the cutting edge of Local-First web development, despite potential changes before the final release ! ;)
 
 ---
 
@@ -27,29 +27,31 @@ This project demonstrates a true **Local-First architecture** paired with a cust
 
 ---
 
-## Getting Started
+## Getting started
 
 1. **Clone the repository:**
    ```bash
-   
-   git clone [https://github.com/sandySandiaGit/jazz-lofi-todo.git](https://github.com/sandySandiaGit/jazz-lofi-todo.git)
+   git clone https://github.com/sandySandiaGit/jazz-lofi-todo.git
    cd jazz-lofi-todo
- 
  
 2. **Install dependencies:**
    ```bash
    pnpm install
 
 3. **Configure environment variables:**
-**Create a .env file in the root directory**
-See .env.example file
+Create a `.env` file in the root directory based on `.env.example`.
 
-4. **Run the development server:**
-   ```bash
-   pnpm dev
+### Run Local Development (With Hot-Reloading)
 
-5. **Build and Preview (Offline Testing):**
-   ```bash
-    pnpm build
-    pnpm preview
+```bash
+pnpm dev
+
+
+### Run Production Preview (For Service Worker & Offline Testing)
+
+```bash
+pnpm build
+pnpm preview
+
+
    

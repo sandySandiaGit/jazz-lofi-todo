@@ -21,25 +21,33 @@ export default function App() {
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [todoToDelete, setTodoToDelete] = useState<string | null>(null);
+  const [hasCheckedInit, setHasCheckedInit] = useState(false);
 
   useEffect(() => {
     // To prevent duplicates: 
-    // only run setup if the categories list has finished loading from the disk/Mesh:
-    if (categories) {
+    // Guard clause: If we already verified/seeded this session, stop to prevent loops
+    if (hasCheckedInit || !categories) return;
 
-      // Check if defaults already exist in the array:
+    // Give the Jazz Mesh sync a brief moment (400ms) to pull down existing cloud categories 
+    // before assuming the database is completely brand new:
+    const timer = setTimeout(() => {
       const hasWork = categories.some((cat) => cat.name === "Work");
       const hasPersonal = categories.some((cat) => cat.name === "Personal");
 
-      // Individually seed categories only if they are truly missing:
       if (!hasWork) {
         db.insert(app.categories, { name: "Work", color: "indigo", iconKey: "briefcase" });
       }
       if (!hasPersonal) {
         db.insert(app.categories, { name: "Personal", color: "indigo", iconKey: "house" });
       }
-    }
-  }, [categories, db]); 
+      
+      setHasCheckedInit(true);
+      
+    }, 400);
+
+    return () => clearTimeout(timer);
+
+  }, [categories, db, hasCheckedInit]);
 
   const handleAddTodo = (e: React.BaseSyntheticEvent) => {
 
@@ -142,18 +150,18 @@ export default function App() {
   
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center p-8">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+      <div className="w-full max-w-md mx-auto bg-white shadow-xl rounded-2xl py-6 px-3 sm:px-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
             <FontAwesomeIcon icon={faFilePen} className="text-indigo-600" />
-            <span>Tiny FullyLoFi To-Do List</span>
+            <span>Tiny FullyLoFi To-Do</span>
           </h1>
           <div className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-full text-xs font-medium text-slate-600">
             <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></span>
-            {isOnline ? 'Online' : 'Offline'}
+            <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
           </div>
         </div>
-        <form onSubmit={handleAddTodo} className="flex flex-col gap-2 mb-6">
+        <form onSubmit={handleAddTodo} className="flex flex-col  mb-6 space-y-2">
           <div className="flex gap-2">
             <input
               type="text"
