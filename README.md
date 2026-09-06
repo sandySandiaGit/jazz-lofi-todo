@@ -19,6 +19,27 @@ The main purpose of this project was to experiment with **Jazz v2** and celebrat
 
 ---
 
+## Technical Demonstrations & Features Tour
+
+Explore these short screen recordings to see the local-first engine and custom service worker in action:
+
+### 1. Online/Offline CRUD Operations
+*Instant state mutations locally with asynchronous mesh queuing.*
+
+https://github.com/user-attachments/assets/bc1c5201-655f-4e47-a14a-a1e9024b0f9d
+
+### 2. Lie-Fi Detection & Network Resilience
+*How the custom Service Worker catches slow/faulty connections and gracefully activates the offline layer.*
+
+https://github.com/user-attachments/assets/9413b8ca-6c0d-45ed-b5b2-c92bb78873a9
+
+### 3. Real-Time WebSocket Synchronization
+*Live, encrypted data updates syncing across multiple application client tabs instantly.*
+
+https://github.com/user-attachments/assets/c6b88d45-1871-406b-8c70-f8917f590760
+
+---
+
 ## Tech Stack
 
 * **Frontend:** React 19, Vite, Tailwind CSS
