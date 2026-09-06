@@ -4,6 +4,8 @@ A modern, fast, and offline-capable micro To-Do application built with **Jazz.to
 
 The main purpose of this project was to experiment with **Jazz v2** and celebrate a deep passion for the **LoFi Philosophy**. It demonstrates a true **Local-First architecture** paired with a custom Cache-First Service Worker to deliver instant UI updates and seamless offline capabilities.
 
+<img width="536" height="769" alt="2" src="https://github.com/user-attachments/assets/a77299f1-29d0-4454-b9d1-5f95f7099695" />
+
 ---
 
 ## Features
