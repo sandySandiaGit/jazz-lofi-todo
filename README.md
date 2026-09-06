@@ -1,8 +1,8 @@
-# Jazz v2 (alpha) and React 19 FullyLoFi very tiny To-Do App
+# Jazz v2 (alpha) and React 19 FullyLoFi Very Tiny To-Do App
 
-A modern, fast, and offline-capable Todo tiny application built with **Jazz.tools v2 (alpha)**, **React 19**, **Vite** and **Tailwind CSS**. 
+A modern, fast, and offline-capable micro To-Do application built with **Jazz.tools v2 (alpha)**, **React 19**, **Vite**, and **Tailwind CSS**. 
 
-This project demonstrates a true **Local-First architecture** paired with a custom Cache-First Service Worker to deliver instant UI updates and seamless offline capabilities.
+The main purpose of this project was to experiment with **Jazz v2** and celebrate a deep passion for the **LoFi Philosophy**. It demonstrates a true **Local-First architecture** paired with a custom Cache-First Service Worker to deliver instant UI updates and seamless offline capabilities.
 
 ---
 
@@ -33,25 +33,33 @@ This project demonstrates a true **Local-First architecture** paired with a cust
    ```bash
    git clone https://github.com/sandySandiaGit/jazz-lofi-todo.git
    cd jazz-lofi-todo
+    ```
  
 2. **Install dependencies:**
    ```bash
    pnpm install
+    ```
 
 3. **Configure environment variables:**
 Create a `.env` file in the root directory based on `.env.example`.
 
-### Run Local Development (With Hot-Reloading)
+---
+
+## Run Local Development (with Hot-Reloading)
 
 ```bash
 pnpm dev
+ ```
+---
 
-
-### Run Production Preview (For Service Worker & Offline Testing)
+## Run Production Preview (for Service Worker & Offline Testing)
 
 ```bash
 pnpm build
 pnpm preview
+ ```
+
+
 
 
    

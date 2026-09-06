@@ -1,4 +1,4 @@
-const VERSION = "40";
+const VERSION = "49";
 const CACHE_NAME = "V" + VERSION;
 const OFFLINE_URL = "/offline.html";
 
@@ -9,7 +9,7 @@ const STATIC_ASSETS = [
   "/",
   "/index.html",
   "/manifest.json",
-  "/favicon.svg"
+  "/favicon.ico"
 ];
 
 // ============================================================================

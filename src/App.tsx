@@ -9,6 +9,46 @@ const CATEGORY_ICONS: Record<string, any> = {
   house: faHouse,
 };
 
+const CATEGORY_COLORS: Record<string, { activeBg: string; text: string; lightBg: string; border: string }> = {
+
+  blue: {
+    activeBg: "bg-blue-500",
+    text: "text-blue-500 hover:text-blue-600",
+    lightBg: "text-blue-600",
+    border: "border-blue-300 focus:border-blue-500 focus:text-blue-00"
+  },
+
+  indigo: {
+    activeBg: "bg-indigo-600", 
+    text: "text-indigo-600 hover:text-indigo-700",
+    lightBg: "text-indigo-600",
+    border: "border-indigo-300 focus:border-indigo-600 focus:text-indigo-600"
+  },
+
+  pink: {
+    activeBg: "bg-pink-500",
+    text: "text-pink-500 hover:text-pink-600",
+    lightBg: "text-pink-500",
+    border: "border-pink-300 focus:border-pink-500 focus:text-pink-500"
+  },
+
+  marine: {
+    activeBg: "bg-blue-900",
+    text: "text-blue-900 hover:text-blue-950",
+    lightBg: "text-blue-900",
+    border: "border-blue-300 focus:border-blue-900 focus:text-blue-900"
+  },
+
+  orange: {
+    activeBg: "bg-orange-500",
+    text: "text-orange-500 hover:text-orange-600",
+    lightBg: "text-orange-600",
+    border: "border-orange-300 focus:border-orange-500 focus:text-orange-500"
+  }
+}
+
+
+
 export default function App() {
 
   const db = useDb();
@@ -31,16 +71,17 @@ export default function App() {
     // Give the Jazz Mesh sync a brief moment (400ms) to pull down existing cloud categories 
     // before assuming the database is completely brand new:
     const timer = setTimeout(() => {
-      const hasWork = categories.some((cat) => cat.name === "Work");
       const hasPersonal = categories.some((cat) => cat.name === "Personal");
+      const hasWork = categories.some((cat) => cat.name === "Work");
+     
+      if (!hasPersonal) {
+        db.insert(app.categories, { name: "Personal", color: "pink", iconKey: "house" });
+      }
 
       if (!hasWork) {
-        db.insert(app.categories, { name: "Work", color: "indigo", iconKey: "briefcase" });
+        db.insert(app.categories, { name: "Work", color: "marine", iconKey: "briefcase" });
       }
-      if (!hasPersonal) {
-        db.insert(app.categories, { name: "Personal", color: "indigo", iconKey: "house" });
-      }
-      
+
       setHasCheckedInit(true);
       
     }, 400);
@@ -152,13 +193,13 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center p-8">
       <div className="w-full max-w-md mx-auto bg-white shadow-xl rounded-2xl py-6 px-3 sm:px-6">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <FontAwesomeIcon icon={faFilePen} className="text-indigo-600" />
-            <span>Tiny FullyLoFi To-Do</span>
+          <h1 className="text-xl font-bold text-blue-900 flex items-center gap-2">
+            <FontAwesomeIcon icon={faFilePen}  />
+            <span >Tiny FullyLoFi To-Do</span>
           </h1>
-          <div className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-full text-xs font-medium text-slate-600">
-            <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></span>
-            <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
+          <div className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-2.5 sm:py-1 rounded-full text-xs font-medium text-blue-900">
+            <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-pink-500'}`}></span>
+            <span className="hidden sm:inline" >{isOnline ? 'Online' : 'Offline'}</span>
           </div>
         </div>
         <form onSubmit={handleAddTodo} className="flex flex-col  mb-6 space-y-2">
@@ -168,9 +209,9 @@ export default function App() {
               value={newTodoTitle}
               onChange={(e) => setNewTodoTitle(e.target.value)}
               placeholder="Add a task..."
-              className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm"
+              className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-400 text-sm"
             />
-            <button type="submit" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl text-sm transition-colors flex items-center gap-1">
+            <button type="submit" className="px-4 py-2 bg-blue-900 hover:bg-blue-700 text-white font-medium rounded-xl text-sm transition-colors flex items-center gap-1">
               <FontAwesomeIcon icon={faPlus} />
             </button>
           </div>
@@ -199,7 +240,7 @@ export default function App() {
                       setIsDropdownOpen(false);
                     }}
                     className={`w-full text-left px-3 py-2 text-xs transition-colors ${
-                      !selectedCategoryId ? "bg-indigo-600 text-white" : "text-slate-600 hover:bg-slate-50"
+                      !selectedCategoryId ? "bg-blue-900 text-white" : "text-slate-600 hover:bg-slate-50"
                     }`}
                   >
                     No category
@@ -215,7 +256,7 @@ export default function App() {
                           setIsDropdownOpen(false);
                         }}
                         className={`w-full text-left px-3 py-2 text-xs transition-colors ${
-                          isSelected ? "bg-indigo-600 text-white font-medium" : "text-slate-600 hover:bg-indigo-50"
+                          isSelected ? "bg-blue-900 text-white font-medium" : "text-slate-600 hover:bg-blue-50"
                         }`}
                       >
                         {cat.name}
@@ -231,7 +272,7 @@ export default function App() {
           <button
             onClick={() => setActiveFilter("all")}
             className={`px-3 py-1 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
-              activeFilter === "all" ? "bg-indigo-600 text-white font-extrabold" : "bg-slate-100 text-indigo-600 hover:bg-slate-200 font-extrabold"
+              activeFilter === "all" ? "bg-blue-900 text-white font-extrabold" : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-extrabold"
             }`}
           >
             All ({todos?.length || 0})
@@ -240,15 +281,17 @@ export default function App() {
           {categories?.map((cat: Category) => {
             const count = todos?.filter(t => t.categoryId === cat.id).length || 0;
             const categoryIcon = CATEGORY_ICONS[cat.iconKey || ""] || faBriefcase;
+            const styles = CATEGORY_COLORS[cat.color || "blue"] || CATEGORY_COLORS.blue;
             
             return (
               <button
                 key={cat.id}
                 onClick={() => setActiveFilter(cat.id)}
-                className={`px-3 py-1 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
+                className={`px-3 py-1 text-xs font-medium rounded-full transition-colors whitespace-nowrap 
+                ${
                   activeFilter === cat.id 
-                    ? "bg-indigo-600 text-white" 
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    ? `${styles.activeBg} text-white` 
+                    : `${styles.text} bg-slate-100 hover:bg-slate-200`
                 }`}
               >
                 <FontAwesomeIcon icon={categoryIcon} className="mr-1" />
@@ -269,6 +312,7 @@ export default function App() {
             {filteredTodos.map((todo: Todo) => {
               const attachedCategory = categories?.find(c => c.id === todo.categoryId);
               const attachedIcon = CATEGORY_ICONS[attachedCategory?.iconKey || ""] || faBriefcase;
+              const styles = CATEGORY_COLORS[attachedCategory?.color || "blue"] || CATEGORY_COLORS.blue;
               
               return (
                 <li key={todo.id} className="flex flex-col p-3 bg-slate-50 rounded-xl border border-slate-100 gap-1 transition-all">
@@ -277,8 +321,8 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => toggleTodo(todo.id, todo.done)}
-                        className={`text-lg transition-colors focus:outline-none ${
-                          todo.done ? "text-indigo-600" : "text-slate-300 hover:text-indigo-400"
+                        className={`text-lg cursor-pointer transition-colors focus:outline-none ${
+                          todo.done ? styles.text : `text-slate-300 hover:${styles.text}`
                         }`}
                       >
                         <FontAwesomeIcon icon={todo.done ? faCircleCheck : faCircleDot} />
@@ -297,28 +341,26 @@ export default function App() {
                               e.currentTarget.blur(); 
                             }
                           }}
-                          
-                          className="flex-1 bg-white px-2 py-0.5 border border-indigo-300 rounded text-sm text-slate-800 focus:outline-none"
+                          className={`flex-1 bg-white px-2 py-0.5 border ${styles.border} rounded text-sm text-slate-800 focus:outline-none`}
                         />
                       ) : (
                         <span 
                           onClick={() => setEditingId(todo.id)}
-                          className={`text-sm cursor-pointer hover:text-indigo-600 transition-colors flex-1 ${todo.done ? "line-through text-slate-400" : "text-slate-700"}`}
+                          className={`text-sm cursor-pointer hover:${styles.text} transition-colors flex-1 ${todo.done ? "line-through text-slate-400" : "text-slate-700"}`}
                         >
                           {todo.title} <FontAwesomeIcon icon={faPenToSquare} />
                         </span>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-
                       {attachedCategory && (
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-700 whitespace-nowrap flex items-center gap-1.5">
+                        <span className={`text-sm font-semibold ${styles.lightBg} whitespace-nowrap flex items-center gap-1.5`}>
                           <FontAwesomeIcon icon={attachedIcon} />
                         </span>
                       )}
                       <button
                         onClick={() => handleDeleteTodo(todo.id)}
-                        className="text-xs p-1 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-rose-50 transition-colors"
+                        className="text-sm p-1 text-slate-400 hover:text-blue-900"
                       >
                         <FontAwesomeIcon icon={faTrashCan} className="cursor-pointer"/>
                       </button>
@@ -330,11 +372,11 @@ export default function App() {
                           />
                           <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-xl border border-slate-100 p-5 z-10 transform scale-100 transition-all">
                             <div className="flex items-center gap-3 mb-3">
-                              <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-100 text-sm">
-                                <FontAwesomeIcon icon={faTrashCan} className="text-indigo-600" />
+                              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-100 text-sm">
+                                <FontAwesomeIcon icon={faTrashCan} className="text-blue-900" />
                               </div>
                               <div>
-                                <h3 className="text-sm font-semibold text-slate-800">Delete this task?</h3>
+                                <h3 className="text-sm font-semibold text-blue-900">Delete this task?</h3>
                                 <p className="text-xs text-slate-500 mt-0.5">This action cannot be undone.</p>
                               </div>
                             </div>
@@ -342,14 +384,14 @@ export default function App() {
                               <button
                                 type="button"
                                 onClick={() => setTodoToDelete(null)}
-                                className="bg-indigo-50 px-3 py-1.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                                className="bg-blue-50 px-3 py-1.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
                               >
                                 Cancel
                               </button>
                               <button
                                 type="button"
                                 onClick={confirmDeleteTodo}
-                                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-xl text-xs font-medium transition-colors shadow-sm shadow-indigo-200"
+                                className="px-3 py-1.5 bg-blue-900 hover:bg-blue-950 text-white font-extrabold rounded-xl text-xs font-medium transition-colors shadow-sm shadow-blue-200"
                               >
                                 Delete Task
                               </button>

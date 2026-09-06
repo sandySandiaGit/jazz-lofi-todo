@@ -1,12 +1,12 @@
 {
-  "name": "Jazz/React/Vite - Tiny FullyLoFi To-Do List",
+  "name": "Tiny FullyLoFi To-Do List",
   "short_name": "Tiny FullyLoFi To-Do List",
   "description": "Jazz v2 alpha/React 19/Vite - Tiny FullyLoFi To-Do List",
   "start_url": "/",
   "display": "standalone",
   "scope": "/",
   "background_color": "#ffffff",
-  "theme_color": "#146AFF",
+  "theme_color": "#213a8d",
   "orientation": "portrait",
   "icons": [
     {

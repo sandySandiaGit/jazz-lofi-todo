@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,7 +8,7 @@
       body {
         margin: 0;
         font-family: system-ui, -apple-system, sans-serif;
-        background: linear-gradient(135deg, #3907ed 0%, #18016c 100%);
+        background: linear-gradient(135deg, #146AFF 0%, #18016c 100%);
         color: #18016c;
         display: flex;
         align-items: center;
@@ -49,17 +49,18 @@
       }
 
       .highlight {
-        background: #779bf0;
+        background: #146AFF;
         padding: 1rem;
         border-radius: 10px;
         margin: 1.5rem 0;
+        color: white;
       }
 
       .buttons {
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
-        margin-top: 2rem;
+        margin-top: 0rem;
       }
 
       .btn {
@@ -97,16 +98,16 @@
   <body>
     <div class="container">
       <img src="icon-512.png" alt="Jazz Logo">
-      <h1>Vous êtes hors ligne</h1>
-      <p>Cette page nécessite une connexion internet pour fonctionner.</p>
+      <h1>You are Offline</h1>
+      <p>This page requires an internet connection to function.</p>
       <div class="highlight">
-        <strong>Bonne nouvelle !</strong><br>
-        Vos données sont sauvegardées et seront synchronisées automatiquement 
-        dès le retour du réseau.
+        <strong>Good news !</strong><br>
+        Your data is saved and will synchronize automatically 
+        as soon as the network returns.
       </div>
       <div class="buttons">
         <button class="btn" onclick="window.location.href='/'">
-              Se rendre à l'accueil
+          Go to Homepage
         </button>
       </div>
     </div>
