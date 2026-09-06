@@ -4,7 +4,9 @@ A modern, fast, and offline-capable micro To-Do application built with **Jazz.to
 
 The main purpose of this project was to experiment with **Jazz v2** and celebrate a deep passion for the **LoFi Philosophy**. It demonstrates a true **Local-First architecture** paired with a custom Cache-First Service Worker to deliver instant UI updates and seamless offline capabilities.
 
-<img width="524" height="748" alt="2" src="https://github.com/user-attachments/assets/2e92d018-7e9c-456e-910e-e18e0c432da7" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/2e92d018-7e9c-456e-910e-e18e0c432da7" style="width: 320px; height: auto; object-fit: contain;" alt="App Mobile Preview" />
+</p>
 
 ---
 
@@ -26,17 +28,35 @@ Explore these short screen recordings to see the local-first engine and custom s
 ### 1. Online/Offline CRUD Operations
 *Instant state mutations locally with asynchronous mesh queuing.*
 
-https://github.com/user-attachments/assets/bc1c5201-655f-4e47-a14a-a1e9024b0f9d
+<table>
+  <tr>
+    <td width="550">
+      <video src="https://github.com/user-attachments/assets/bc1c5201-655f-4e47-a14a-a1e9024b0f9d" controls style="max-width: 100%;"></video>
+    </td>
+  </tr>
+</table>
 
 ### 2. Lie-Fi Detection & Network Resilience
 *How the custom Service Worker catches slow/faulty connections and gracefully activates the offline layer.*
 
-https://github.com/user-attachments/assets/9413b8ca-6c0d-45ed-b5b2-c92bb78873a9
+<table>
+  <tr>
+    <td width="550">
+      <video src="https://github.com/user-attachments/assets/9413b8ca-6c0d-45ed-b5b2-c92bb78873a9" controls style="max-width: 100%;"></video>
+    </td>
+  </tr>
+</table>
 
 ### 3. Real-Time WebSocket Synchronization
 *Live, encrypted data updates syncing across multiple application client tabs instantly.*
 
-https://github.com/user-attachments/assets/c6b88d45-1871-406b-8c70-f8917f590760
+<table>
+  <tr>
+    <td width="550">
+      <video src="https://github.com/user-attachments/assets/c6b88d45-1871-406b-8c70-f8917f590760" controls style="max-width: 100%;"></video>
+    </td>
+  </tr>
+</table>
 
 ---
 
