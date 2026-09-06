@@ -1,4 +1,4 @@
-const VERSION = "49";
+const VERSION = "51";
 const CACHE_NAME = "V" + VERSION;
 const OFFLINE_URL = "/offline.html";
 

@@ -34,7 +34,7 @@ const CATEGORY_COLORS: Record<string, { activeBg: string; text: string; lightBg:
 
   marine: {
     activeBg: "bg-blue-900",
-    text: "text-blue-900 hover:text-blue-950",
+    text: "text-blue-900 hover:text-blue-900",
     lightBg: "text-blue-900",
     border: "border-blue-300 focus:border-blue-900 focus:text-blue-900"
   },
@@ -46,8 +46,6 @@ const CATEGORY_COLORS: Record<string, { activeBg: string; text: string; lightBg:
     border: "border-orange-300 focus:border-orange-500 focus:text-orange-500"
   }
 }
-
-
 
 export default function App() {
 
@@ -206,12 +204,13 @@ export default function App() {
           <div className="flex gap-2">
             <input
               type="text"
+              maxLength={35}
               value={newTodoTitle}
               onChange={(e) => setNewTodoTitle(e.target.value)}
               placeholder="Add a task..."
-              className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-400 text-sm"
+              className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-900 text-sm"
             />
-            <button type="submit" className="px-4 py-2 bg-blue-900 hover:bg-blue-700 text-white font-medium rounded-xl text-sm transition-colors flex items-center gap-1">
+            <button type="submit" className="px-4 py-2 bg-blue-900  hover:bg-pink-600  text-white font-medium rounded-xl text-sm transition-colors flex items-center gap-1">
               <FontAwesomeIcon icon={faPlus} />
             </button>
           </div>
@@ -348,7 +347,7 @@ export default function App() {
                           onClick={() => setEditingId(todo.id)}
                           className={`text-sm cursor-pointer hover:${styles.text} transition-colors flex-1 ${todo.done ? "line-through text-slate-400" : "text-slate-700"}`}
                         >
-                          {todo.title} <FontAwesomeIcon icon={faPenToSquare} />
+                          {todo.title} <FontAwesomeIcon icon={faPenToSquare} className={`text-slate-300 hover:${styles.text}`} />
                         </span>
                       )}
                     </div>
@@ -360,14 +359,14 @@ export default function App() {
                       )}
                       <button
                         onClick={() => handleDeleteTodo(todo.id)}
-                        className="text-sm p-1 text-slate-400 hover:text-blue-900"
+                        className="text-sm p-1 text-slate-400 hover:text-pink-500"
                       >
                         <FontAwesomeIcon icon={faTrashCan} className="cursor-pointer"/>
                       </button>
                       {todoToDelete !== null && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
                           <div 
-                            className="fixed inset-0 bg-slate-500/10 backdrop-blur-sm"
+                            className="fixed inset-0 bg-blue-100/5 backdrop-blur-sm"
                             onClick={() => setTodoToDelete(null)} 
                           />
                           <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-xl border border-slate-100 p-5 z-10 transform scale-100 transition-all">
@@ -391,7 +390,7 @@ export default function App() {
                               <button
                                 type="button"
                                 onClick={confirmDeleteTodo}
-                                className="px-3 py-1.5 bg-blue-900 hover:bg-blue-950 text-white font-extrabold rounded-xl text-xs font-medium transition-colors shadow-sm shadow-blue-200"
+                                className="px-3 py-1.5 bg-blue-900 hover:bg-pink-600 text-white font-extrabold rounded-xl text-xs font-medium transition-colors shadow-sm shadow-blue-200"
                               >
                                 Delete Task
                               </button>
