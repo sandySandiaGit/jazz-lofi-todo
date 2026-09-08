@@ -51,14 +51,19 @@ Explore these short screen recordings to see the local-first engine and custom s
 ### 3. Real-Time WebSocket Synchronization
 *Live, encrypted data updates syncing across multiple application client tabs instantly.*
 
-<!--<table>
+<table>
   <tr>
     <td width="550">
       <video src="https://github.com/user-attachments/assets/c6b88d45-1871-406b-8c70-f8917f590760" controls style="max-width: 100%;"></video>
     </td>
   </tr>
-</table>-->
+</table>
 
+### 🎵 Music Credits
+* **Track:** [Alan Walker Style x AVA - All Alone (Official Music Video)](https://www.youtube.com/watch?v=7bTZWNly9-0&list=RDDIWySdVP1RA&index=2)
+* **Artist:** [Audio Vibes Alliance (AVA)](https://www.youtube.com/channel/UCetEJ0BCDRAVog5IEb0LDdw)
+* *Note: Featured in the app demonstration with explicit permission from the creator. Special thanks to Audio Vibes Alliance for their kindness and for letting me share their beautiful music ! 🎶🎵💙*
+  
 ---
 
 ## Tech Stack
