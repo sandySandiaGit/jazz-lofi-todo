@@ -29,13 +29,13 @@ Explore these short screen recordings to see the local-first engine and custom s
 ### 1. Online/Offline CRUD Operations
 *Instant state mutations locally with asynchronous mesh queuing.*
 
-<!--<table>
+<table>
   <tr>
     <td width="550">
       <video src="https://github.com/user-attachments/assets/bc1c5201-655f-4e47-a14a-a1e9024b0f9d" controls style="max-width: 100%;"></video>
     </td>
   </tr>
-</table>-->
+</table>
 
 ### 2. Lie-Fi Detection & Network Resilience
 *How the custom Service Worker catches slow/faulty connections and gracefully activates the offline layer.*
