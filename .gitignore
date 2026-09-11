@@ -26,6 +26,7 @@ dist-ssr/
 
 # Project custom exclusions
 Z_*
+src/Z_*
 
 # Environment Variables
 .env

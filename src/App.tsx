@@ -56,7 +56,7 @@ export default function App() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
-  const [activeFilter, setActiveFilter] = useState<string>("all");
+  const [activeFilterName, setActiveFilterName] = useState<string>("All");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [todoToDelete, setTodoToDelete] = useState<string | null>(null);
   const [hasCheckedInit, setHasCheckedInit] = useState(false);
@@ -69,6 +69,7 @@ export default function App() {
     // Give the Jazz Mesh sync a brief moment (400ms) to pull down existing cloud categories 
     // before assuming the database is completely brand new:
     const timer = setTimeout(() => {
+
       const hasPersonal = categories.some((cat) => cat.name === "Personal");
       const hasWork = categories.some((cat) => cat.name === "Work");
      
@@ -122,10 +123,29 @@ export default function App() {
     }
   };
 
-  const filteredTodos = todos?.filter((todo: Todo) => {
-    if (activeFilter === "all") return true;
-    return todo.categoryId === activeFilter;
+  // 1. Create a unique list of categories (keeping only the 1st occurrence of each name):
+  const uniqueCategories = categories?.filter(
+    (cat, index, self) => self.findIndex((c) => c.name === cat.name) === index
+  ) || [];
+
+  // 2. Filter Todos by accepting ALL IDs belonging to categories with the active name:
+  const filteredTodos = todos?.filter((todo) => {
+
+    if (activeFilterName === "All") return true;
+
+    // If the todo has no category (categoryId is null/undefined),
+    // it cannot match a specific filter criteria:
+    if (!todo.categoryId) return false;
+
+    // Find all IDs of duplicate categories sharing the same name:
+    const validCategoryIds = categories
+      ?.filter((c) => c.name === activeFilterName)
+      .map((c) => c.id) || [];
+
+    return validCategoryIds.includes(todo.categoryId); // Guaranteed 100% strict string checking!
   });
+
+  const selectedCategoryName = categories?.find(c => c.id === selectedCategoryId)?.name;
 
   const checkRealConnection = async (timeout = 3000): Promise<boolean> => {
 
@@ -186,6 +206,8 @@ export default function App() {
       window.removeEventListener("offline", handleOfflineEvent);
     };
   }, []);
+
+  
   
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center p-8">
@@ -204,16 +226,17 @@ export default function App() {
           <div className="flex gap-2">
             <input
               type="text"
-              maxLength={35}
+              maxLength={30}
               value={newTodoTitle}
               onChange={(e) => setNewTodoTitle(e.target.value)}
-              placeholder="Add a task..."
+              placeholder="Add a collaborative task..."
               className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-900 text-sm"
             />
             <button type="submit" className="px-4 py-2 bg-blue-900  hover:bg-pink-600  text-white font-medium rounded-xl text-sm transition-colors flex items-center gap-1">
               <FontAwesomeIcon icon={faPlus} />
             </button>
           </div>
+          {/* Categories select: */}
           <div className="relative w-full">
             <button
               type="button"
@@ -221,13 +244,15 @@ export default function App() {
               className="w-full flex items-center justify-between px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 outline-none text-left"
             >
               <span>
-                {categories?.find(c => c.id === selectedCategoryId)?.name || "No category"}
+                {/* Display the category name (even if it maps to a duplicate ID): */}
+                {selectedCategoryName || "No category"}
               </span>
               <FontAwesomeIcon 
                 icon={faChevronDown} 
                 className="text-slate-400 text-[10px] transition-transform duration-200" 
               />
             </button>
+
             {isDropdownOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
@@ -244,8 +269,12 @@ export default function App() {
                   >
                     No category
                   </button>
-                  {categories?.map((cat) => {
-                    const isSelected = cat.id === selectedCategoryId;
+
+                  {/* Iterate strictly over the deduplicated categories list: */}
+                  {uniqueCategories.map((cat: Category) => {
+                    // Compare by NAME so that the active highlight works correctly even with duplicate IDs:
+                    const isSelected = cat.name === selectedCategoryName;
+
                     return (
                       <button
                         key={cat.id}
@@ -267,29 +296,35 @@ export default function App() {
             )}
           </div>
         </form>
+
         <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+          {/* Render category filter buttons: */}
+          {/* 1. "All" Button: */}
           <button
-            onClick={() => setActiveFilter("all")}
+            onClick={() => setActiveFilterName("All")}
             className={`px-3 py-1 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
-              activeFilter === "all" ? "bg-blue-900 text-white font-extrabold" : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-extrabold"
+              activeFilterName === "All" ? "bg-blue-900 text-white font-extrabold" : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-extrabold"
             }`}
           >
             All ({todos?.length || 0})
           </button>
 
-          {categories?.map((cat: Category) => {
-            const count = todos?.filter(t => t.categoryId === cat.id).length || 0;
+          {/* 2. Category Buttons (Iterating over the DEDUPLICATED list): */}
+          {uniqueCategories.map((cat: Category) => {
+            // Count todos linked to ALL duplicates under this name to get the true total:
+            const validIds = categories?.filter((c) => c.name === cat.name).map((c) => c.id) || [];
+            // Prefix with 't.categoryId &&' to guarantee safe string passing to includes():
+            const count = todos?.filter((t) => t.categoryId && validIds.includes(t.categoryId)).length || 0;
             const categoryIcon = CATEGORY_ICONS[cat.iconKey || ""] || faBriefcase;
-            const styles = CATEGORY_COLORS[cat.color || "blue"] || CATEGORY_COLORS.blue;
+            const styles = CATEGORY_COLORS[cat.color || "marine"] || CATEGORY_COLORS.marine;
             
             return (
               <button
                 key={cat.id}
-                onClick={() => setActiveFilter(cat.id)}
-                className={`px-3 py-1 text-xs font-medium rounded-full transition-colors whitespace-nowrap 
-                ${
-                  activeFilter === cat.id 
-                    ? `${styles.activeBg} text-white` 
+                onClick={() => setActiveFilterName(cat.name)} 
+                className={`px-3 py-1 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
+                  activeFilterName === cat.name
+                    ? `${styles.activeBg} text-white`
                     : `${styles.text} bg-slate-100 hover:bg-slate-200`
                 }`}
               >
@@ -311,7 +346,7 @@ export default function App() {
             {filteredTodos.map((todo: Todo) => {
               const attachedCategory = categories?.find(c => c.id === todo.categoryId);
               const attachedIcon = CATEGORY_ICONS[attachedCategory?.iconKey || ""] || faBriefcase;
-              const styles = CATEGORY_COLORS[attachedCategory?.color || "blue"] || CATEGORY_COLORS.blue;
+              const styles = CATEGORY_COLORS[attachedCategory?.color || "marine"] || CATEGORY_COLORS.marine;
               
               return (
                 <li key={todo.id} className="flex flex-col p-3 bg-slate-50 rounded-xl border border-slate-100 gap-1 transition-all">
@@ -330,7 +365,8 @@ export default function App() {
                       {editingId === todo.id ? (
                         <input
                           type="text"
-                          value={todo.title} 
+                          value={todo.title}
+                          maxLength={30} 
                           onChange={(e) => handleLiveEdit(todo.id, e.target.value)}
                           onBlur={() => setEditingId(null)}
                           autoFocus
