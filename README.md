@@ -18,7 +18,7 @@ The main purpose of this project was to experiment with **Jazz v2** and celebrat
 * **Automatic Mesh Synchronization:** Background real-time sync with `cloud.jazz.tools` as soon as network connectivity is restored.
 * **Installable PWA:** Includes a web app manifest configured for mobile and desktop PWA installation.
 
->**Note:** This project was intentionally built using **Jazz v2 (Alpha)** to explore the cutting edge of Local-First web development, despite potential changes before the final release ! ;)
+>**Note:** This project was intentionally built using **Jazz v2 (Alpha)** to explore the cutting edge of Local-First web development, despite potential API changes before the final release ! ;)
 
 ---
 
@@ -29,13 +29,21 @@ Explore these short screen recordings to see the local-first engine and custom s
 ### 1. Online/Offline CRUD Operations
 *Instant state mutations locally with asynchronous mesh queuing.*
 
-<table>
+<!--<table>
   <tr>
     <td width="550">
       <video src="https://github.com/user-attachments/assets/bc1c5201-655f-4e47-a14a-a1e9024b0f9d" controls style="max-width: 100%;"></video>
     </td>
   </tr>
-</table>
+</table>-->
+
+> [!NOTE]
+> **Local-First Offline & Sync Demo**
+> 
+> This video demonstrates the core **Local-First** paradigm powered by **Jazz v2 (WASM & OPFS)**:
+> 
+> * **Instant Offline CRUD:** Task operations (Create, Update, Delete) execute with zero latency against the local in-browser database:no internet connection required!
+> * **Resilient Sync Mesh:** As soon as network connectivity is restored, local CRDT state changes automatically merge and sync across all connected devices in real time.
 
 ### 2. Lie-Fi Detection & Network Resilience
 *How the custom Service Worker catches slow/faulty connections and gracefully activates the offline layer.*
