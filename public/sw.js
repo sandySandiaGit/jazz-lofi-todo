@@ -1,8 +1,9 @@
-const VERSION = "60"; // Change it to force a hard cache update!
+const VERSION = "61"; // Change it to force a hard cache update!
 const CACHE_NAME = "V" + VERSION;
 const OFFLINE_URL = "/offline.html";
 
-// Only immutable root files are precached at startup:
+// Only immutable root files are precached at startup (in 1a)
+// (Static root files vs dynamically hashed assets handled below in 1b):
 const STATIC_ASSETS = [
   OFFLINE_URL,
   "/",
@@ -13,9 +14,9 @@ const STATIC_ASSETS = [
   "/icon-512.png"
 ];
 
-// =======================================================================================================
+// =================================================================================
 // 1. INSTALLATION - Precaching base files + Vite hashed assets during installation
-// =======================================================================================================
+// =================================================================================
 self.addEventListener("install", (event) => {
 
   console.log("[SW] Installing version:", CACHE_NAME);
@@ -26,7 +27,7 @@ self.addEventListener("install", (event) => {
     (async () => {
       const cache = await caches.open(CACHE_NAME);
 
-      // 1a. Precache static assets (prevents requiring an initial online reload)
+      // 1a. Precache static assets (prevents requiring an initial online reload):
       for (const url of STATIC_ASSETS) {
         try {
           await cache.add(url);
@@ -35,18 +36,44 @@ self.addEventListener("install", (event) => {
         }
       }
 
-      // 1b. VITE TRICK: Parse index.html to collect compiled JS/CSS assets
+      // 1b. DEEP VITE PARSING: Parse index.html AND main JS bundles for dynamic imports (WASM/chunks)
+      // Deep Precache scan: Automatically discover lazy-loaded WASM modules and JS chunks
       try {
         const indexResp = await fetch("/index.html");
         const html = await indexResp.text();
-        const regex = /(?:src|href)="(\/assets\/[^"]+)"/g;
+        const assetsToCache = new Set();
+
+        // Find direct links in index.html:
+        const htmlRegex = /(?:src|href)="(\/assets\/[^"]+)"/g;
         let match;
-        while ((match = regex.exec(html)) !== null) {
-          console.log("[SW] Auto-precaching Vite asset:", match[1]);
-          await cache.add(match[1]);
+        while ((match = htmlRegex.exec(html)) !== null) {
+          assetsToCache.add(match[1]);
+        }
+
+        // Deep scan: Fetch main JS files to discover dynamic chunks (like jazz_wasm)
+        for (const assetUrl of Array.from(assetsToCache)) {
+          if (assetUrl.endsWith(".js")) {
+            try {
+              const jsResp = await fetch(assetUrl);
+              const jsText = await jsResp.text();
+              const jsChunkRegex = /(?:"|')(\/assets\/[^"']+\.(?:js|wasm|css))(?:["'])/g;
+              let jsMatch;
+              while ((jsMatch = jsChunkRegex.exec(jsText)) !== null) {
+                assetsToCache.add(jsMatch[1]);
+              }
+            } catch (e) {
+              console.warn("[SW] Deep scan failed for JS bundle:", assetUrl, e);
+            }
+          }
+        }
+
+        // Add all discovered assets (including WASM & lazy chunks) to precache:
+        for (const asset of assetsToCache) {
+          console.log("[SW] Auto-precaching asset:", asset);
+          await cache.add(asset);
         }
       } catch (err) {
-        console.warn("[SW] Failed to parse Vite assets from index.html:", err);
+        console.warn("[SW] Failed to parse assets:", err);
       }
     })()
   );
