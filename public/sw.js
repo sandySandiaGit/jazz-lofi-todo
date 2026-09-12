@@ -1,4 +1,4 @@
-const VERSION = "61"; // Change it to force a hard cache update!
+const VERSION = "62"; // Change it to force a hard cache update!
 const CACHE_NAME = "V" + VERSION;
 const OFFLINE_URL = "/offline.html";
 
@@ -36,38 +36,50 @@ self.addEventListener("install", (event) => {
         }
       }
 
-      // 1b. DEEP VITE PARSING: Parse index.html AND main JS bundles for dynamic imports (WASM/chunks)
-      // Deep Precache scan: Automatically discover lazy-loaded WASM modules and JS chunks
+      // 1b. DEEP VITE PARSING & WASM FIX: Parse index.html AND main JS bundles for dynamic imports
+      // Deep Precache scan: Automatically discover lazy-loaded WASM modules and JS chunks.
+      // Normalizes relative paths (ex: ./jazz_wasm-...) into absolute URLs 
+      // (ex: /assets/jazz_wasm-Je1OU6Ey.js) prior to precaching:
       try {
         const indexResp = await fetch("/index.html");
         const html = await indexResp.text();
         const assetsToCache = new Set();
 
-        // Find direct links in index.html:
+        // Find direct asset links in index.html:
         const htmlRegex = /(?:src|href)="(\/assets\/[^"]+)"/g;
         let match;
         while ((match = htmlRegex.exec(html)) !== null) {
           assetsToCache.add(match[1]);
         }
 
-        // Deep scan: Fetch main JS files to discover dynamic chunks (like jazz_wasm)
+        // Deep scan: Fetch discovered main JS bundles to extract lazy-loaded WASM & JS chunks:
         for (const assetUrl of Array.from(assetsToCache)) {
           if (assetUrl.endsWith(".js")) {
             try {
               const jsResp = await fetch(assetUrl);
               const jsText = await jsResp.text();
-              const jsChunkRegex = /(?:"|')(\/assets\/[^"']+\.(?:js|wasm|css))(?:["'])/g;
+
+              // Capture relative imports like "./jazz_wasm-xxx.js", "jazz_wasm-xxx.js", or "/assets/...":
+              const jsChunkRegex = /(?:"|')((?:\.\/|\/)?(?:assets\/)?[a-zA-Z0-9_-]+\.(?:js|wasm|css))(?:["'])/g;
               let jsMatch;
               while ((jsMatch = jsChunkRegex.exec(jsText)) !== null) {
-                assetsToCache.add(jsMatch[1]);
+                // Normalize relative paths (ex: ./jazz_wasm-...) into absolute URLs 
+                // (ex: /assets/jazz_wasm-Je1OU6Ey.js) prior to precaching:
+                let chunkPath = jsMatch[1].replace(/^\.\//, ""); // Strip leading "./" 
+                if (!chunkPath.startsWith("/")) chunkPath = "/" + chunkPath;
+                if (!chunkPath.startsWith("/assets/")) chunkPath = "/assets/" + chunkPath;
+                
+                // Keep only compiled Vite chunks with hashes (ex: jazz_wasm-xxxx.js):
+                if (chunkPath.includes("-")) {
+                  assetsToCache.add(chunkPath);
+                }
               }
             } catch (e) {
               console.warn("[SW] Deep scan failed for JS bundle:", assetUrl, e);
             }
           }
         }
-
-        // Add all discovered assets (including WASM & lazy chunks) to precache:
+        // Add all discovered static assets and WASM modules to cache:
         for (const asset of assetsToCache) {
           console.log("[SW] Auto-precaching asset:", asset);
           await cache.add(asset);
