@@ -1,4 +1,4 @@
-const VERSION = "63"; // Change it to force a hard cache update!
+const VERSION = "64"; // Change it to force a hard cache update!
 const CACHE_NAME = "V" + VERSION;
 const OFFLINE_URL = "/offline.html";
 
@@ -36,22 +36,31 @@ self.addEventListener("install", (event) => {
         }
       }
 
-      // 1b. DEEP VITE PARSING & WASM FIX: Recursive scan for dynamic imports
-      // Deep Precache scan: Uses a queue to recursively discover nested chunks and WASM modules:
+      // 1b. DEEP VITE PARSING & WASM FIX: Recursive scan for dynamic imports & WASM modules
       try {
         const indexResp = await fetch("/index.html");
         const html = await indexResp.text();
         const assetsToCache = new Set();
 
+        // Helper to safely format paths without double slashes:
+        const normalizePath = (rawPath) => {
+          if (!rawPath) return null;
+          let cleaned = rawPath.replace(/['"`]/g, "").replace(/^\.\//, "").replace(/^\//, "");
+          if (!cleaned.startsWith("assets/")) {
+            cleaned = "assets/" + cleaned;
+          }
+          return "/" + cleaned;
+        };
+
         // Find direct asset links in index.html:
-        const htmlRegex = /(?:src|href)="(\/assets\/[^"]+)"/g;
+        const htmlRegex = /(?:src|href)="([^"]+)"/g;
         let match;
         while ((match = htmlRegex.exec(html)) !== null) {
-          assetsToCache.add(match[1]);
+          const path = normalizePath(match[1]);
+          if (path && path.includes("-")) assetsToCache.add(path);
         }
 
-        // Recursive scan queue to inspect all 
-        // discovered JS bundles (Level 1, Level 2, Level 3...):
+        // Recursive scan queue to inspect all discovered JS bundles:
         const queue = Array.from(assetsToCache);
         const processed = new Set();
 
@@ -63,25 +72,29 @@ self.addEventListener("install", (event) => {
           if (assetUrl.endsWith(".js")) {
             try {
               const jsResp = await fetch(assetUrl);
+              if (!jsResp.ok) continue;
               const jsText = await jsResp.text();
 
-              // Matches relative, absolute, or Vite chunk import patterns 
-              // (supports .js, .wasm, .css):
-              const jsChunkRegex = /(?:"|')((?:\.\/|\/)?(?:assets\/)?[a-zA-Z0-9_.-]+\.(?:js|wasm|css))(?:["'])/g;
+              // 1. Match strings ending in .js, .wasm, or .css inside quotes or backticks:
+              const jsChunkRegex = /(?:["'`])([^"'\`\s?#]+\.(?:js|wasm|css))(?:["'`])/g;
               let jsMatch;
               while ((jsMatch = jsChunkRegex.exec(jsText)) !== null) {
-                // Normalize relative paths (ex: ./jazz_wasm-...) into absolute URLs 
-                // (ex: /assets/jazz_wasm-Je1OU6Ey.js) prior to precaching:
-                let chunkPath = jsMatch[1].replace(/^\.\//, ""); // Strip leading "./"
-                if (!chunkPath.startsWith("/")) chunkPath = "/" + chunkPath;
-                if (!chunkPath.startsWith("/assets/")) chunkPath = "/assets/" + chunkPath;
-
-                // Precache hashed Vite chunks and enqueue new JS files for further deep scanning:
-                if (chunkPath.includes("-") && !assetsToCache.has(chunkPath)) {
+                const chunkPath = normalizePath(jsMatch[1]);
+                if (chunkPath && chunkPath.includes("-") && !assetsToCache.has(chunkPath)) {
+                  console.log("[SW Scan] Discovered chunk:", chunkPath);
                   assetsToCache.add(chunkPath);
-                  if (chunkPath.endsWith(".js")) {
-                    queue.push(chunkPath);
-                  }
+                  if (chunkPath.endsWith(".js")) queue.push(chunkPath);
+                }
+              }
+
+              // 2. Fallback scan specifically targeting jazz/wasm references:
+              const jazzWasmRegex = /(?:assets\/)?(jazz[a-zA-Z0-9_-]*\.(?:js|wasm))/gi;
+              let wasmMatch;
+              while ((wasmMatch = jazzWasmRegex.exec(jsText)) !== null) {
+                const wasmPath = normalizePath(wasmMatch[1]);
+                if (wasmPath && !assetsToCache.has(wasmPath)) {
+                  console.log("[SW Scan] Explicit WASM target found:", wasmPath);
+                  assetsToCache.add(wasmPath);
                 }
               }
             } catch (e) {
@@ -90,7 +103,7 @@ self.addEventListener("install", (event) => {
           }
         }
 
-        // Add all discovered static assets and WASM modules to cache:
+        // Cache all discovered static assets and WASM modules:
         for (const asset of assetsToCache) {
           console.log("[SW] Auto-precaching asset:", asset);
           await cache.add(asset);
