@@ -1,6 +1,6 @@
 {
-  "name": "Tiny FullyLoFi To-Do List",
-  "short_name": "Tiny FullyLoFi To-Do List",
+  "name": "Tiny FullyLoFi To-Do",
+  "short_name": "Tiny FullyLoFi To-Do",
   "description": "Jazz v2 alpha/React 19/Vite - Tiny FullyLoFi To-Do List",
   "start_url": "/",
   "display": "standalone",

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAll, useDb } from "jazz-tools/react"; 
 import { app, type Todo, type Category } from "./schema";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFilePen, faTrashCan, faPenToSquare, faPlus, faBriefcase, faHouse, faCircleCheck , faCircleDot, faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { faFilePen, faTrashCan, faPlus, faBriefcase, faHouse, faCircleCheck , faCircleDot, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 
 const CATEGORY_ICONS: Record<string, any> = {
   briefcase: faBriefcase,
@@ -102,6 +102,7 @@ export default function App() {
     });
 
     setNewTodoTitle("");
+    setSelectedCategoryId(undefined);
   };
 
   const toggleTodo = (id: string, currentStatus: boolean) => {
@@ -207,22 +208,20 @@ export default function App() {
     };
   }, []);
 
-  
-  
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center p-8">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center p-8">
       <div className="w-full max-w-md mx-auto bg-white shadow-xl rounded-2xl py-6 px-3 sm:px-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-blue-900 flex items-center gap-2">
             <FontAwesomeIcon icon={faFilePen}  />
             <span >Tiny FullyLoFi To-Do</span>
           </h1>
-          <div className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-2.5 sm:py-1 rounded-full text-xs font-medium text-blue-900">
-            <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-pink-500'}`}></span>
+          <div className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-2.5 sm:py-1 rounded-full text-xs font-medium text-slate-500">
+            <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-blue-900' : 'bg-pink-500'}`}></span>
             <span className="hidden sm:inline" >{isOnline ? 'Online' : 'Offline'}</span>
           </div>
         </div>
-        <form onSubmit={handleAddTodo} className="flex flex-col  mb-6 space-y-2">
+        <form onSubmit={handleAddTodo} className="flex flex-col mb-6 space-y-2">
           <div className="flex gap-2">
             <input
               type="text"
@@ -230,9 +229,9 @@ export default function App() {
               value={newTodoTitle}
               onChange={(e) => setNewTodoTitle(e.target.value)}
               placeholder="Add a collaborative task..."
-              className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-900 text-sm"
+              className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-900 text-sm text-blue-900"
             />
-            <button type="submit" className="px-4 py-2 bg-blue-900  hover:bg-pink-600  text-white font-medium rounded-xl text-sm transition-colors flex items-center gap-1">
+            <button type="submit" className="px-4 py-2 bg-blue-900  hover:bg-pink-600  text-white font-extrabold rounded-xl text-sm transition-colors flex items-center gap-1">
               <FontAwesomeIcon icon={faPlus} />
             </button>
           </div>
@@ -241,7 +240,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full flex items-center justify-between px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 outline-none text-left"
+              className="w-full font-bold flex items-center justify-between px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-blue-900 outline-none text-left"
             >
               <span>
                 {/* Display the category name (even if it maps to a duplicate ID): */}
@@ -249,7 +248,7 @@ export default function App() {
               </span>
               <FontAwesomeIcon 
                 icon={faChevronDown} 
-                className="text-slate-400 text-[10px] transition-transform duration-200" 
+                className="text-blue-900 font-extrabold text-[10px] transition-transform duration-200" 
               />
             </button>
 
@@ -263,9 +262,9 @@ export default function App() {
                       setSelectedCategoryId(undefined);
                       setIsDropdownOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-2 text-xs transition-colors ${
-                      !selectedCategoryId ? "bg-blue-900 text-white" : "text-slate-600 hover:bg-slate-50"
-                    }`}
+                    className={`w-full text-left font-extrabold px-3 py-2 text-xs transition-colors 
+                      ${ !selectedCategoryId ? "bg-blue-900 text-white" : "text-blue-900 hover:bg-slate-50"}`
+                    }
                   >
                     No category
                   </button>
@@ -283,9 +282,9 @@ export default function App() {
                           setSelectedCategoryId(cat.id);
                           setIsDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-3 py-2 text-xs transition-colors ${
-                          isSelected ? "bg-blue-900 text-white font-medium" : "text-slate-600 hover:bg-blue-50"
-                        }`}
+                        className={`w-full text-left font-extrabold px-3 py-2 text-xs transition-colors 
+                          ${isSelected ? "bg-blue-900 text-white font-extrabold" : "text-blue-900 hover:bg-blue-50"}`
+                        }
                       >
                         {cat.name}
                       </button>
@@ -302,8 +301,9 @@ export default function App() {
           {/* 1. "All" Button: */}
           <button
             onClick={() => setActiveFilterName("All")}
-            className={`px-3 py-1 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
-              activeFilterName === "All" ? "bg-blue-900 text-white font-extrabold" : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-extrabold"
+            className={`px-3 py-1 text-xs rounded-full font-extrabold transition-colors whitespace-nowrap ${
+            activeFilterName === "All" ? "bg-blue-900 text-white font-extrabold" : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-extrabold"
+             //slate version: activeFilterName === "All" ? "bg-slate-400 text-white font-extrabold" : "bg-slate-100 text-slate-400 hover:bg-slate-200 font-extrabold"
             }`}
           >
             All ({todos?.length || 0})
@@ -322,10 +322,10 @@ export default function App() {
               <button
                 key={cat.id}
                 onClick={() => setActiveFilterName(cat.name)} 
-                className={`px-3 py-1 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
+                className={`px-3 py-1 text-xs font-extrabold rounded-full transition-colors whitespace-nowrap ${
                   activeFilterName === cat.name
-                    ? `${styles.activeBg} text-white`
-                    : `${styles.text} bg-slate-100 hover:bg-slate-200`
+                    ? `${styles.activeBg} text-white font-extrabold`
+                    : `${styles.text} bg-slate-100 hover:bg-slate-200 font-extrabold`
                 }`}
               >
                 <FontAwesomeIcon icon={categoryIcon} className="mr-1" />
@@ -349,15 +349,13 @@ export default function App() {
               const styles = CATEGORY_COLORS[attachedCategory?.color || "marine"] || CATEGORY_COLORS.marine;
               
               return (
-                <li key={todo.id} className="flex flex-col p-3 bg-slate-50 rounded-xl border border-slate-100 gap-1 transition-all">
+                <li key={todo.id} className="flex flex-col p-3 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-100 gap-1 transition-all">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 flex-1">
                       <button
                         type="button"
                         onClick={() => toggleTodo(todo.id, todo.done)}
-                        className={`text-lg cursor-pointer transition-colors focus:outline-none ${
-                          todo.done ? styles.text : `text-slate-300 hover:${styles.text}`
-                        }`}
+                        className={`text-lg cursor-pointer transition-colors focus:outline-none ${styles.text}`}
                       >
                         <FontAwesomeIcon icon={todo.done ? faCircleCheck : faCircleDot} />
                       </button>
@@ -376,14 +374,14 @@ export default function App() {
                               e.currentTarget.blur(); 
                             }
                           }}
-                          className={`flex-1 bg-white px-2 py-0.5 border ${styles.border} rounded text-sm text-slate-800 focus:outline-none`}
+                          className={`flex-1 bg-white px-2 py-0.5 border ${styles.border} rounded text-sm focus:outline-none`}
                         />
                       ) : (
                         <span 
                           onClick={() => setEditingId(todo.id)}
-                          className={`text-sm cursor-pointer hover:${styles.text} transition-colors flex-1 ${todo.done ? "line-through text-slate-400" : "text-slate-700"}`}
+                          className={`text-sm cursor-pointer hover:${styles.text} transition-colors flex-1 ${todo.done ? "line-through text-slate-400 font-medium" : `${styles.text} font-extrabold`}`}
                         >
-                          {todo.title} <FontAwesomeIcon icon={faPenToSquare} className={`text-slate-300 hover:${styles.text}`} />
+                          {todo.title} 
                         </span>
                       )}
                     </div>
@@ -412,21 +410,21 @@ export default function App() {
                               </div>
                               <div>
                                 <h3 className="text-sm font-semibold text-blue-900">Delete this task?</h3>
-                                <p className="text-xs text-slate-500 mt-0.5">This action cannot be undone.</p>
+                                <p className="text-xs text-blue-900 mt-0.5">This action cannot be undone.</p>
                               </div>
                             </div>
                             <div className="flex items-center justify-end gap-2 mt-5">
                               <button
                                 type="button"
                                 onClick={() => setTodoToDelete(null)}
-                                className="bg-blue-50 px-3 py-1.5 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                                className="cursor-pointer bg-blue-50 px-3 py-1.5 border border-slate-200 rounded-xl text-xs font-extrabold text-blue-900 hover:bg-blue-100 transition-colors"
                               >
                                 Cancel
                               </button>
                               <button
                                 type="button"
                                 onClick={confirmDeleteTodo}
-                                className="px-3 py-1.5 bg-blue-900 hover:bg-pink-600 text-white font-extrabold rounded-xl text-xs font-medium transition-colors shadow-sm shadow-blue-200"
+                                className="cursor-pointer px-3 py-1.5 bg-blue-900 hover:bg-pink-600 text-white font-extrabold rounded-xl text-xs font-extrabold transition-colors shadow-sm shadow-blue-200"
                               >
                                 Delete Task
                               </button>
