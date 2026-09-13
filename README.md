@@ -117,10 +117,6 @@ This project is built strictly for **educational, non-commercial portfolio purpo
     git clone https://github.com/sandySandiaGit/jazz-lofi-todo.git
     cd jazz-lofi-todo
     ```
-    
-   ```bash
-    cd jazz-lofi-todo
-    ```
    
 2. **Install dependencies:**
    ```bash
