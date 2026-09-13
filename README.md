@@ -32,7 +32,7 @@ Explore these short screen recordings to see the local-first engine and custom s
 <table>
   <tr>
     <td width="550">
-      <video src="https://github.com/user-attachments/assets/bc1c5201-655f-4e47-a14a-a1e9024b0f9d" controls style="max-width: 100%;"></video>
+      <video src="https://github.com/user-attachments/assets/bc1c5201-655f-4e47-a14a-a1e9024b0f9d" autoplay loop muted playsinline controls width="100%"></video>
     </td>
   </tr>
 </table>
@@ -48,7 +48,7 @@ Explore these short screen recordings to see the local-first engine and custom s
 <table>
   <tr>
     <td width="550">
-      <video src="https://github.com/user-attachments/assets/9413b8ca-6c0d-45ed-b5b2-c92bb78873a9" controls style="max-width: 100%;"></video>
+      <video src="https://github.com/user-attachments/assets/9413b8ca-6c0d-45ed-b5b2-c92bb78873a9" autoplay loop muted playsinline controls width="100%"></video>
     </td>
   </tr>
 </table>
@@ -59,7 +59,7 @@ Explore these short screen recordings to see the local-first engine and custom s
 <table>
   <tr>
     <td width="550">
-      <video src="https://github.com/user-attachments/assets/2b28d9a9-45bb-483b-8b77-31471f02c0c3" controls style="max-width: 100%;"></video>
+      <video src="https://github.com/user-attachments/assets/2b28d9a9-45bb-483b-8b77-31471f02c0c3" autoplay loop muted playsinline controls width="100%"></video>
     </td>
   </tr>
 </table>
@@ -75,7 +75,7 @@ A **CRDT (Conflict-free Replicated Data Type)**  allows multiple offline devices
 <table>
   <tr>
     <td width="550">
-      <video src="https://github.com/user-attachments/assets/c6b88d45-1871-406b-8c70-f8917f590760" controls style="max-width: 100%;"></video>
+      <video src="https://github.com/user-attachments/assets/c6b88d45-1871-406b-8c70-f8917f590760" autoplay loop muted playsinline controls width="100%"></video>
     </td>
   </tr>
 </table>
@@ -113,11 +113,15 @@ This project is built strictly for **educational, non-commercial portfolio purpo
 ## Getting started
 
 1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/sandySandiaGit/jazz-lofi-todo.git
-   cd jazz-lofi-todo
+    ```bash
+    git clone https://github.com/sandySandiaGit/jazz-lofi-todo.git
+    cd jazz-lofi-todo
     ```
- 
+    
+   ```bash
+    cd jazz-lofi-todo
+    ```
+   
 2. **Install dependencies:**
    ```bash
    pnpm install
@@ -128,15 +132,13 @@ Create a `.env` file in the root directory based on `.env.example`.
 
 ---
 
-## Run Local Development (with Hot-Reloading)
+## Running the tiny App
 
+**Run Local Development (with Hot-Reloading):**
 ```bash
 pnpm dev
  ```
----
-
-## Run Production Preview (for Service Worker & Offline Testing)
-
+**Run Production Preview (for Service Worker & Offline Testing):**
 ```bash
 pnpm build
 pnpm preview
