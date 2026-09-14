@@ -1,4 +1,5 @@
 
+
 # Jazz v2 (alpha) and React 19 FullyLoFi Very Tiny To-Do App
 
 A modern, fast, and offline-capable micro To-Do application built with **Jazz.tools v2 (alpha)**, **React 19**, **Vite**, and **Tailwind CSS**. 
@@ -8,7 +9,7 @@ The main purpose of this project was to experiment with **Jazz v2** 💙 and cel
 <p align="center">
   <img src="https://github.com/user-attachments/assets/31aeb710-6f6d-48ee-8f6c-a1c60ba7012c" style="width: 320px; height: auto; object-fit: contain;" alt="App Mobile Preview" />
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img width="202" height="442" alt="offline-mobile" src="https://github.com/user-attachments/assets/2e2065f4-bbb7-4ac7-b7bc-e1b2814a2d7a" />
+  <img width="276" height="600" alt="offline-mobile3" src="https://github.com/user-attachments/assets/cd808507-a36f-4d5f-aaf0-994a5a92ba30" />
 </p>
 
 ---
