@@ -231,9 +231,14 @@ export default function App() {
               placeholder="Add a collaborative task..."
               className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-900 text-sm text-blue-900"
             />
-            <button type="submit" className="px-4 py-2 bg-blue-900  hover:bg-pink-600  text-white font-extrabold rounded-xl text-sm transition-colors flex items-center gap-1">
+            <button 
+              type="submit" 
+              className="flex items-center justify-center gap-1 bg-blue-900 font-extrabold text-white transition-colors hover:bg-pink-600 
+              h-8 w-8 rounded-full text-xs sm:h-auto sm:w-auto sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm"
+            >
               <FontAwesomeIcon icon={faPlus} />
             </button>
+
           </div>
           {/* Categories select: */}
           <div className="relative w-full">
@@ -301,10 +306,11 @@ export default function App() {
           {/* 1. "All" Button: */}
           <button
             onClick={() => setActiveFilterName("All")}
-            className={`px-3 py-1 text-xs rounded-full font-extrabold transition-colors whitespace-nowrap ${
-            activeFilterName === "All" ? "bg-blue-900 text-white font-extrabold" : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-extrabold"
-             //slate version: activeFilterName === "All" ? "bg-slate-400 text-white font-extrabold" : "bg-slate-100 text-slate-400 hover:bg-slate-200 font-extrabold"
-            }`}
+            className={`rounded-full px-2 py-1 text-xs transition-colors whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
+              ${ activeFilterName === "All"
+                ? "bg-blue-900 text-white font-extrabold"
+                : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-normal"
+              }`}
           >
             All ({todos?.length || 0})
           </button>
@@ -322,11 +328,11 @@ export default function App() {
               <button
                 key={cat.id}
                 onClick={() => setActiveFilterName(cat.name)} 
-                className={`px-3 py-1 text-xs font-extrabold rounded-full transition-colors whitespace-nowrap ${
-                  activeFilterName === cat.name
+                className={`rounded-full px-2 py-1 text-xs transition-colors whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
+                  ${ activeFilterName === cat.name
                     ? `${styles.activeBg} text-white font-extrabold`
-                    : `${styles.text} bg-slate-100 hover:bg-slate-200 font-extrabold`
-                }`}
+                    : `${styles.text} bg-slate-100 hover:bg-slate-200 font-normal`
+                  }`}
               >
                 <FontAwesomeIcon icon={categoryIcon} className="mr-1" />
                 {cat.name} ({count})
