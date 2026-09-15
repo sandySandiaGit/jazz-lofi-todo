@@ -2,7 +2,7 @@
 
 # Jazz v2 (alpha) and React 19 FullyLoFi Very Tiny To-Do App
 
-A modern, fast, and offline-capable micro To-Do application built with **Jazz.tools v2 (alpha)**, **React 19**, **Vite**, and **Tailwind CSS**. 
+A modern, fast, and offline-capable micro To-Do application built with **Jazz.tools v2 (alpha 53)**, **React 19**, **Vite**, and **Tailwind CSS**. 
 
 The main purpose of this project was to experiment with **Jazz v2** 💙 and celebrate a deep passion for the **LoFi Philosophy** 💗. It demonstrates a true **Local-First architecture** paired with a custom **Cache-First Service Worker** to deliver **instant UI updates** and **seamless offline capabilities**.
 
@@ -29,8 +29,8 @@ The main purpose of this project was to experiment with **Jazz v2** 💙 and cel
 
 Explore these short screen recordings to see the local-first engine and custom service worker in action:
 
-### 1. Online/Offline CRUD Operations
-*Instant state mutations locally with asynchronous mesh queuing.*
+### 1. Online/Offline CRUD & Real-Time Sync
+*Instant state mutations locally with asynchronous mesh queuing, powered by Jazz v2 (WASM & OPFS).*
 
 <table>
   <tr>
@@ -40,10 +40,8 @@ Explore these short screen recordings to see the local-first engine and custom s
   </tr>
 </table>
 
- **Local-First Offline & Sync Demo**
- This video demonstrates the core **Local-First** paradigm powered by **Jazz v2 (WASM & OPFS)**:
- * **Instant Offline CRUD:** Task operations (Create, Update, Delete) execute with zero latency against the local in-browser database:no internet connection required!
- * **Resilient Sync Mesh:** As soon as network connectivity is restored, local CRDT state changes automatically merge and sync across all connected devices in real time.
+* **Zero-Latency Offline CRUD:** Task operations (Create, Update, Delete) execute instantly against the local in-browser database with zero network dependency.
+* **Resilient Sync Mesh:** When connectivity is restored, local **CRDT (Conflict-free Replicated Data Type)** state changes automatically merge and sync across connected devices in real time.
 
 ### 2. Lie-Fi Detection & Network Resilience
 *How the custom Service Worker catches slow/faulty connections and gracefully activates the offline layer.*
@@ -67,10 +65,9 @@ Explore these short screen recordings to see the local-first engine and custom s
   </tr>
 </table>
 
-**CRDTs** are one of the core **Local-First** concepts powering **Jazz v2**:
-A **CRDT (Conflict-free Replicated Data Type)**  allows multiple offline devices to edit data independently and automatically merge changes upon reconnection without a central server lock. 
-* **Last-Write-Wins (LWW)**: For atomic fields like s.string(), Jazz resolves concurrent edits by preserving the update with the latest logical timestamp (LAST).
-* **Multi-Field Merge**: Independent property updates (e.g., changing a title on Client A while toggling done on Client B) merge seamlessly without data loss.
+* **CRDT Merge Engine:** allows multiple offline devices to edit data independently and automatically merge changes upon reconnection without a central server lock.
+* **Last-Write-Wins (LWW):** for atomic scalar fields like s.string(), Jazz resolves concurrent edits by preserving the update with the latest timestamp ("LAST").
+* **Multi-Field Merge:** independent property updates (e.g., editing a title on Client A while toggling `done` on Client B) merge seamlessly without data loss.
 
 ### 4. Real-Time WebSocket Synchronization
 *Live, encrypted data updates syncing across multiple application client tabs instantly.*
@@ -89,12 +86,12 @@ This project is built strictly for **educational, non-commercial portfolio purpo
 **Video #1**
 * **Track:** [R3DN1K - Ocean Eyes](https://www.youtube.com/watch?v=DIWySdVP1RA)
 * **Artist:** [R3DN1K](https://www.youtube.com/channel/UCHc2HZiVCZ3U6syfz8isvTw)
-* *Note: Fair Use educational fallback. Fully attributed to the artist.*
+* *Note: Non-commercial educational showcase.*
 
 **Video #2**
 * **Track:** [LARA Walker - Fading Sky](https://www.youtube.com/watch?v=m_tlT8zlgZQ)
 * **Artist:** [LARAWalkerVEVO](https://www.youtube.com/@LARAWalkerVEVO)
-* *Note: Fair Use educational fallback. Fully attributed to the artist.*
+* *Note: Non-commercial educational showcase.*
 
 **Videos #3 and #4**
 * **Track:** [Alan Walker Style x AVA - All Alone (Official Music Video)](https://www.youtube.com/watch?v=7bTZWNly9-0)
@@ -106,7 +103,7 @@ This project is built strictly for **educational, non-commercial portfolio purpo
 ## Tech Stack
 
 * **Frontend:** React 19, Vite, Tailwind CSS
-* **Local-First Engine:** `jazz-tools` (v2 Alpha)
+* **Local-First Engine:** `jazz-tools` (v2 - Alpha 53)
 * **Storage:** OPFS / WebAssembly
 * **PWA:** Custom Cache-First Service Worker
 * **Deployment:** Vercel
