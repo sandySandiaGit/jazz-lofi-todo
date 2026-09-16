@@ -111,7 +111,7 @@ This project is built strictly for **educational, non-commercial portfolio purpo
 ## Tech Stack
 
 * **Frontend:** React 19, Vite, Tailwind CSS
-* **Local-First Engine:** `jazz-tools` (v2 - Alpha 53)
+* **Local-First Engine:** `jazz-tools` (Jazz 2.0.0-alpha.53)
 * **Storage:** OPFS / WebAssembly
 * **PWA:** Custom Cache-First Service Worker
 * **Deployment:** Vercel
