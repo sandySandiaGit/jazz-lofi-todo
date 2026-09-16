@@ -80,6 +80,16 @@ Explore these short screen recordings to see the local-first engine and custom s
   </tr>
 </table>
 
+### The Paradigm Shift: The Network Is No Longer the Boss
+
+While the demo videos above use DevTools toggles and Lie-Fi simulation to prove resilience, **the true magic of Jazz v2 is that the application doesn't care about network status at all !**
+
+* **Always-Local Execution:** The app operates 100% against the in-browser local database (OPFS/WASM) with zero latency.
+* **Network as a Silent Sync Layer:** Connectivity is no longer a prerequisite for user actions : the network is demoted to a simple background transport layer that replicates CRDT state when available.
+* **No `isOnline` Hacks:** No blocking loading spinners, no fragile state checks, and no dropped data. The app just works, always.
+
+The network is no longer the boss : It is simply the transport layer that allows local changes to propagate and enables real-time collaboration.
+
 ### 🎵 Music Credits
 This project is built strictly for **educational, non-commercial portfolio purposes**. It features beautiful ambient tracks that provide the perfect focus atmosphere while coding !
 
