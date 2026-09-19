@@ -1,4 +1,4 @@
-const VERSION = "70"; // Change it to force a hard cache update!
+const VERSION = "13"; // Change it to force a hard cache update!
 const CACHE_NAME = "V" + VERSION;
 const OFFLINE_URL = "/offline.html";
 
@@ -16,6 +16,7 @@ const STATIC_ASSETS = [
 
 // =================================================================================
 // 1. INSTALLATION - Precaching base files + Vite hashed assets during installation
+// (prevents requiring an initial online reload ===> 1a et 1b !!!!)
 // =================================================================================
 self.addEventListener("install", (event) => {
 
@@ -27,7 +28,7 @@ self.addEventListener("install", (event) => {
     (async () => {
       const cache = await caches.open(CACHE_NAME);
 
-      // 1a. Precache static assets (prevents requiring an initial online reload):
+      // 1a. Precache static assets:
       for (const url of STATIC_ASSETS) {
         try {
           await cache.add(url);

@@ -1,61 +1,28 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
+import { createAccountManager } from 'jazz-tools'
 import App from './App.tsx'
-import { JazzProvider, useLocalFirstAuth } from "jazz-tools/react";
+import './index.css'
 
-function JazzAppWrapper() {
+// Créer le gestionnaire de compte EN DEHORS du composant React:
+// docu: "Prepare the account outside the context with createAccountManager."
+const appId = "b993414f-b59d-4db0-9ada-14929d90cf36"
+const serverUrl = "https://v2.sync.jazz.tools/"
 
-  const { secret, isLoading } = useLocalFirstAuth();
-  const jazzKey = import.meta.env.VITE_JAZZ_APP_ID;
+// 1. Initialiser le gestionnaire:
+const accounts = await createAccountManager({ appId, serverUrl })
 
-  if (isLoading || !secret) {
-     // The 'key="loading"' attribute ensures React forces a clean DOM unmount/remount when state changes:
-    return (
-      <div key="loading" className="p-8 text-center text-sm text-slate-400" translate="no">
-        Setting up local identity...
-      </div>
-    );
-  }
+// 2. Ajouter 'await' pour résoudre les promesses et obtenir l'objet AccountHandle:
+// Récupérer le compte connecté ou en créer un local-first:
+const account = (accounts.getLoggedIn()) ?? (accounts.createLocalFirst())
 
-  return (
-    <JazzProvider
-      key="app"
-      config={{
-        appId: jazzKey,
-        serverUrl: "https://v2.sync.jazz.tools/",
-        // See: https://jazz.tools/docs/getting-started/client-setup#jazz-framework-react
-        /* Every client needs an appId and a secret for local-first auth. 
-        Without secret, the client runs in anonymous mode and every write is rejected 
-        with AnonymousWriteDeniedError. 
-        Add a serverUrl to enable sync. 
-        For the full auth matrix (anonymous, local-first, external JWT), see Authentication.*/
-      
-        // Pass the secret to authorize database reads and writes:
-        secret: secret, // Keeps the cryptographic authentication valid
-      }}
-    >
-      <App />
-    </JazzProvider>
-  );
-}
+console.log("[Jazz] Account loaded on startup!!!!!!!!!!!!!:", account?.id);
 
-// Anti-duplicate createRoot trick for Vite HMR (Hot Module Replacement):
-// Directly infer the return type of createRoot:
-// FIX: Store the root instance on the global window object during development hot-reloads
-const container = document.getElementById('root')!;
-const globalWindow = window as unknown as { _reactRoot?: ReturnType<typeof createRoot> };
-
-if (!globalWindow._reactRoot) {
-  // Create it the very first time and lock it into memory:
-  globalWindow._reactRoot = createRoot(container);
-}
-
-globalWindow._reactRoot.render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <JazzAppWrapper />
+    <App account={account} />
   </StrictMode>
-);
+)
 
 // Service worker registration:
 // Register the Service Worker in production environments only.
@@ -76,6 +43,3 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
     window.addEventListener("load", registerSW);
   }
 }
-
-
-
