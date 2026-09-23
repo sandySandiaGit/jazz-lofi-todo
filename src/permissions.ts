@@ -1,13 +1,14 @@
 import { schema as s } from "jazz-tools";
-import { app } from "./schema"; 
+import { app } from "./schema.ts";
 
-export default s.definePermissions(app, ({ policy }) => {
-  // Allow all reads and writes on the tables:
+export const permissions = s.definePermissions(app, ({ policy }) => {
+  
   policy.todos.allowRead.always();
   policy.todos.allowInsert.always();
   policy.todos.allowUpdate.always();
   policy.todos.allowDelete.always();
 
+  
   policy.categories.allowRead.always();
   policy.categories.allowInsert.always();
   policy.categories.allowUpdate.always();

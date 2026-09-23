@@ -1,4 +1,4 @@
-const VERSION = "13"; // Change it to force a hard cache update!
+const VERSION = "5"; // Change it to force a hard cache update!
 const CACHE_NAME = "V" + VERSION;
 const OFFLINE_URL = "/offline.html";
 

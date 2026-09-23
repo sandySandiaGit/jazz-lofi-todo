@@ -4,19 +4,15 @@ import { createAccountManager } from 'jazz-tools'
 import App from './App.tsx'
 import './index.css'
 
-// Créer le gestionnaire de compte EN DEHORS du composant React:
-// docu: "Prepare the account outside the context with createAccountManager."
-const appId = "b993414f-b59d-4db0-9ada-14929d90cf36"
+const appId = import.meta.env.VITE_JAZZ_APP_ID;
+
 const serverUrl = "https://v2.sync.jazz.tools/"
 
-// 1. Initialiser le gestionnaire:
 const accounts = await createAccountManager({ appId, serverUrl })
 
-// 2. Ajouter 'await' pour résoudre les promesses et obtenir l'objet AccountHandle:
-// Récupérer le compte connecté ou en créer un local-first:
 const account = (accounts.getLoggedIn()) ?? (accounts.createLocalFirst())
 
-console.log("[Jazz] Account loaded on startup!!!!!!!!!!!!!:", account?.id);
+//console.log("[Jazz] Account loaded on startup:", account?.id);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -1,4 +1,29 @@
 {
+  "categories": {
+    "columns": [
+      {
+        "name": "name",
+        "column_type": {
+          "type": "Text"
+        },
+        "nullable": false
+      },
+      {
+        "name": "color",
+        "column_type": {
+          "type": "Text"
+        },
+        "nullable": false
+      },
+      {
+        "name": "iconKey",
+        "column_type": {
+          "type": "Text"
+        },
+        "nullable": false
+      }
+    ]
+  },
   "todos": {
     "columns": [
       {
@@ -22,24 +47,6 @@
         },
         "nullable": true,
         "references": "categories"
-      }
-    ]
-  },
-  "categories": {
-    "columns": [
-      {
-        "name": "name",
-        "column_type": {
-          "type": "Text"
-        },
-        "nullable": false
-      },
-      {
-        "name": "color",
-        "column_type": {
-          "type": "Text"
-        },
-        "nullable": false
       }
     ]
   }

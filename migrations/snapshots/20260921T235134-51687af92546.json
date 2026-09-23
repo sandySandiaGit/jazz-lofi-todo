@@ -2,6 +2,14 @@
   "todos": {
     "columns": [
       {
+        "name": "categoryId",
+        "column_type": {
+          "type": "Uuid"
+        },
+        "nullable": true,
+        "references": "categories"
+      },
+      {
         "name": "title",
         "column_type": {
           "type": "Text"
@@ -14,16 +22,15 @@
           "type": "Boolean"
         },
         "nullable": false
-      },
-      {
-        "name": "categoryId",
-        "column_type": {
-          "type": "Uuid"
-        },
-        "nullable": true,
-        "references": "categories"
       }
-    ]
+    ],
+    "relations": {
+      "category": {
+        "kind": "forward",
+        "table": "categories",
+        "column": "categoryId"
+      }
+    }
   },
   "categories": {
     "columns": [
@@ -48,6 +55,13 @@
         },
         "nullable": false
       }
-    ]
+    ],
+    "relations": {
+      "todos": {
+        "kind": "reverse",
+        "table": "todos",
+        "relation": "category"
+      }
+    }
   }
 }
