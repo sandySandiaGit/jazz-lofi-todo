@@ -155,14 +155,14 @@ export default function TodoList() {
   );
 
   const filteredTodos = todos
-    .filter((todo): todo is Todo => Boolean(todo && todo.id))
-    .filter((todo) => {
+    .filter((todo: Todo): todo is Todo => Boolean(todo && todo.id))
+    .filter((todo: Todo) => {
       if (activeFilterName === "All") return true;
       if (!todo.categoryId) return false;
 
       const validCategoryIds = categories
-        .filter((c) => c && c.name === activeFilterName)
-        .map((c) => c.id);
+        .filter((c: Category) => c && c.name === activeFilterName)
+        .map((c: Category) => c.id);
 
       return validCategoryIds.includes(todo.categoryId);
     });
