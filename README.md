@@ -154,7 +154,7 @@ pnpm preview
 
 ---
 
-## Moving Towards "Pure Local-First 💗"
+## Moving Towards "Pure Local-First"💗
 
 In his talk [*What if useState() was your Database?*](https://www.youtube.com/watch?v=kP_ItV3Ikc0), **Anselm Eickoff** (creator of Jazz) challenges the overuse of `useState` in modern React development. 
 
