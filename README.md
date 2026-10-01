@@ -151,3 +151,80 @@ pnpm preview
 > Browser DevTools network emulation (such as *Network > Offline* or *Application > Service Workers > Offline checkbox*) may not fully intercept background WebSocket channels or local inter-tab worker sync used by Jazz `alpha.58`.
 > 
 > To properly test offline mode and multi-device synchronization resilience, please test by temporarily **disabling your device's Wi-Fi / Ethernet connection** or switching to **Airplane Mode**.
+
+---
+
+## Moving Towards "Pure Local-First 💗"
+
+In his talk [*What if useState() was your Database?*](https://www.youtube.com/watch?v=kP_ItV3Ikc0), **Anselm Eickoff** (creator of Jazz) challenges the overuse of `useState` in modern React development. 
+
+Traditionally, developers declare a `useState` hook for every single input field (`title`, `category`, etc.), generating repetitive "glue code" to manually synchronize local UI state with a remote backend.
+
+By adopting a **Pure Local-First** mindset, the local database (IndexedDB via Jazz) acts as the **single reactive source of truth**. We eliminate redundant intermediate states and let native HTML elements handle transient user inputs.
+
+---
+
+### What Concretely Changes in the Code?
+
+| Concept | Traditional React Pattern | Pure Local-First Pattern (Jazz) |
+| :--- | :--- | :--- |
+| **Form Inputs** | `useState` updated on every keystroke (`onChange`) | Native HTML form + `FormData` extracted on submission |
+| **Business Data** | Duplicated between `useState` and the database | Stored and observed directly in Jazz via `useAll()` |
+| **React State (`useState`)** | Overused for everything (inputs, data, filters) | **Reserved strictly for ephemeral UI state** (e.g., `editingId`, open modals) |
+| **React Re-renders** | Triggered on every single keypress | Triggered only when the local database mutates |
+
+> 💡 **Try it Live in the App:**
+> An interactive toggle button is included in `App.tsx`. You can switch between the **Standard React** (`<TodoList />`) and **Pure Local-First** (`<TodoListPureLoFi />`) implementations directly in your browser without altering any code!
+---
+
+### Code Comparison: Before vs. After
+
+#### Before: Controlled React Pattern (Intermediate State)
+```tsx
+const [newTodoTitle, setNewTodoTitle] = useState("");
+
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+  db.insert(app.todos, { title: newTodoTitle });
+  setNewTodoTitle(""); // Manual state cleanup
+};
+
+return (
+  <form onSubmit={handleSubmit}>
+    <input 
+      value={newTodoTitle} 
+      onChange={(e) => setNewTodoTitle(e.target.value)} 
+    />
+  </form>
+);
+```
+
+#### After: Pure Local-First Pattern (Native HTML + Jazz)
+```tsx
+const handleAddTodo = (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  const formData = new FormData(e.currentTarget);
+  const title = formData.get("todoTitle")?.toString().trim();
+
+  if (title) {
+    db.insert(app.todos, { title });
+    e.currentTarget.reset(); // Native HTML form reset
+  }
+};
+
+return (
+  <form onSubmit={handleAddTodo}>
+    <input name="todoTitle" required />
+  </form>
+);
+```
+
+---
+
+### Key Benefits
+
+1. Zero Boilerplate: Eliminates repetitive useState declarations and onChange handlers for form inputs.
+
+2. Optimized Performance: Prevents unnecessary React re-renders on every single keystroke.
+
+3. Direct Reactivity & Persistence: Writes directly to local storage (IndexedDB) with zero-latency UI updates via useAll().
