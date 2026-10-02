@@ -180,6 +180,10 @@ By adopting a **Pure Local-First** mindset, the local database (IndexedDB via Ja
 >
 > While **useRef** could bypass these re-renders, it introduces heavy boilerplate and imperative DOM manipulation, making **native FormData** the **cleaner Local-First approach** !
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/58fe6fd0-41d2-4a66-b522-6a36eec529df" style="width: 500px; height: auto; object-fit: contain;" alt="Pressed keys console logs" />
+</p>
+
 ---
 
 ### Code Comparison: Before vs. After
