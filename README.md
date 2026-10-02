@@ -199,7 +199,7 @@ By adopting a **Pure Local-First** mindset, the local database (IndexedDB via Ja
 
 ### Code Comparison: Before vs. After
 
-#### Before: Controlled React Pattern (Intermediate State)
+#### Before: Controlled React Pattern (Intermediate State) => `TodoList.tsx`
 ```tsx
 const [newTodoTitle, setNewTodoTitle] = useState("");
 
@@ -221,7 +221,7 @@ return (
 );
 ```
 
-#### After: Pure Local-First Pattern (Native HTML + Jazz) - Zero useState
+#### After: Pure Local-First Pattern (Native HTML + Jazz) - Zero useState => `TodoListPureLoFi.tsx`
 ```tsx
 const handleAddTodo = (e: React.BaseSyntheticEvent) => {
 
