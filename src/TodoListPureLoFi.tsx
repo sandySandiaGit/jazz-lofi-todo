@@ -2,16 +2,17 @@ import { useState, useEffect, useRef } from "react";
 import { useAll, useDb } from "jazz-tools/react";
 import { app, type Todo, type Category } from "./schema.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faFilePen, faTrashCan, faPlus, faBriefcase, faHouse, faCircleCheck, faCircleDot, faChevronDown} from "@fortawesome/free-solid-svg-icons";
+import {faFilePen, faTrashCan, faPlus, faBriefcase, faHouse,faCircleCheck, faCircleDot} from "@fortawesome/free-solid-svg-icons";
 
 /**
- * APPROACH 1: Traditional Controlled Component
+ * APPROACH 2: Pure Local-First Component (Uncontrolled / Native HTML)
  * 
- * CHARACTERISTICS:
- * - Uses React useState to track input values character-by-character.
- * - Triggers a React re-render on EVERY SINGLE keystroke in the input field.
- * - Requires manual state reset (setNewTodoTitle("")) after database submission.
- * - Creates unnecessary "glue code" between the DOM input and local state.
+ * ADVANTAGES:
+ * - NO useState declarations: The browser DOM manages the typing state natively.
+ * - ZERO unnecessary re-renders while typing: Typing does NOT trigger React renders.
+ * - Native FormData API extracts input value cleanly on form submission.
+ * - Native e.currentTarget.reset() clears the form instantly.
+ * - Direct Reactive Persistence: Jazz useAll() listens directly to IndexedDB.
  */
 
 const CATEGORY_ICONS: Record<string, any> = {
@@ -53,21 +54,20 @@ const CATEGORY_COLORS: Record<string, { activeBg: string; text: string; lightBg:
   }
 };
 
-export default function TodoList() {
+export default function TodoListPureLoFi() {
 
   const db = useDb();
 
+  // Directly subscribe to Jazz reactive data stream (Single Source of Truth):
   const { data: todos = [], isLoading: isTodosLoading } = useAll(app?.todos);
   const { data: categories = [], isLoading: isCategoriesLoading } = useAll(app?.categories);
 
-  const [newTodoTitle, setNewTodoTitle] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
+  // Purely ephemeral UI state:
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [activeFilterName, setActiveFilterName] = useState<string>("All");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [todoToDelete, setTodoToDelete] = useState<string | null>(null);
-  
+  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
+
   // Use a ref instead of useState to avoid unnecessary re-renders:
   const hasCheckedInit = useRef(false);
 
@@ -79,10 +79,8 @@ export default function TodoList() {
       db.insert(app.categories, { name: "Personal", color: "pink", iconKey: "house" });
       db.insert(app.categories, { name: "Work", color: "marine", iconKey: "briefcase" });
     }
-    
-    hasCheckedInit.current = true; // Synchronous mutation in memory (0 re-renders)
+    hasCheckedInit.current = true;
   }, [categories, isCategoriesLoading, db]);
-
 
   const checkRealConnection = async (timeout = 3000): Promise<boolean> => {
 
@@ -147,56 +145,34 @@ export default function TodoList() {
   }, []);
 
   if (!app || !app.todos || !app.categories) {
-    return (
-      <p className="text-center text-slate-400 py-8 animate-pulse">
-        Initializing Jazz schema...
-      </p>
-    );
+    return <p className="text-center text-slate-400 py-8 animate-pulse">Initialisation de la structure Jazz...</p>;
   }
 
   if (isTodosLoading || isCategoriesLoading) {
-    return (
-      <p className="text-center text-slate-400 py-8 animate-pulse">
-        Loading and syncing...
-      </p>
-    );
+    return <p className="text-center text-slate-400 py-8 animate-pulse">Chargement et synchronisation...</p>;
   }
 
-  // Deduplicate categories:
-  const uniqueCategories = categories.filter(
-    (cat: Category, index: number, self: Category[]) =>
-      cat && self.findIndex((c: Category) => c.name === cat.name) === index
-  );
-
-  const filteredTodos = todos
-    .filter((todo: Todo): todo is Todo => Boolean(todo && todo.id))
-    .filter((todo: Todo) => {
-      if (activeFilterName === "All") return true;
-      if (!todo.categoryId) return false;
-
-      const validCategoryIds = categories
-        .filter((c: Category) => c && c.name === activeFilterName)
-        .map((c: Category) => c.id);
-
-      return validCategoryIds.includes(todo.categoryId);
-    });
-
+  // --- CRUD ACTIONS (Zero useState needed for the form !!) ---
   const handleAddTodo = (e: React.BaseSyntheticEvent) => {
 
     e.preventDefault();
-    
-    if (!newTodoTitle.trim()) return;
 
-    // 1. Write directly to Jazz local database:
+    // 1. Extract values using native Browser API (no React state needed):
+    const formData = new FormData(e.currentTarget);
+    const title = formData.get("todoTitle")?.toString().trim();
+    const categoryId = formData.get("todoCategory")?.toString();
+
+    if (!title) return;
+
+    // 2. Persist directly to local database (syncs to memory & disk instantly):
     db.insert(app.todos, {
-      title: newTodoTitle,
+      title,
       done: false,
-      categoryId: selectedCategoryId,
+      categoryId: categoryId || undefined,
     });
 
-    // 2. Manual cleanup of the intermediate states:
-    setNewTodoTitle("");
-    setSelectedCategoryId(undefined);
+    // 3. Reset form input and select using native HTML DOM method:
+    e.currentTarget.reset(); 
   };
 
   const toggleTodo = (id: string, currentStatus: boolean) => {
@@ -214,121 +190,112 @@ export default function TodoList() {
     }
   };
 
-  const selectedCategoryName = categories?.find((c: Category) => c.id === selectedCategoryId)?.name;
+  const uniqueCategories = categories.filter(
+    (cat: Category, index: number, self: Category[]) =>
+      cat && self.findIndex((c: Category) => c.name === cat.name) === index
+  );
+
+  const filteredTodos = todos
+    .filter((todo): todo is Todo => Boolean(todo && todo.id))
+    .filter((todo) => {
+      if (activeFilterName === "All") return true;
+      if (!todo.categoryId) return false;
+      const validCategoryIds = categories.filter((c) => c && c.name === activeFilterName).map((c) => c.id);
+      return validCategoryIds.includes(todo.categoryId);
+    });
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center p-8">
-      <div className="w-full max-w-md mx-auto bg-white shadow-xl rounded-2xl py-6 px-3 sm:px-6">
+      <div className="w-full max-w-md mx-auto bg-blue-500 shadow-xl rounded-2xl py-6 px-3 sm:px-6">
+        
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-blue-900 flex items-center gap-2">
             <FontAwesomeIcon icon={faFilePen} />
             <span>Tiny FullyLoFi To-Do</span>
           </h1>
-          <div className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-2.5 sm:py-1 rounded-full text-xs font-medium text-slate-500">
+           <div className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-2.5 sm:py-1 rounded-full text-xs font-medium text-slate-500">
             <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-blue-900' : 'bg-pink-500'}`}></span>
             <span className="hidden sm:inline" >{isOnline ? 'Online' : 'Offline'}</span>
           </div>
         </div>
 
-        {/* Create Form: */}
-        <form onSubmit={handleAddTodo} className="flex flex-col mb-6 space-y-2">
+        {/* Uncontrolled Form (Native HTML only): */}
+        <form onSubmit={handleAddTodo} className="flex flex-col mb-6 gap-2">
           <div className="flex gap-2">
             <input
+              name="todoTitle" // Identified natively by name attribute
               type="text"
               maxLength={30}
-              value={newTodoTitle}
-              // Re-renders the component on every keypress:
-              onChange={(e) => {
-                setNewTodoTitle(e.target.value)
-                console.log(
-                  "%c 🟣 [Controlled] %c Keypress %c %s ",
-                  "background: #7e22ce; color: #f3e8ff; font-weight: bold; padding: 3px 6px; border-top-left-radius: 6px; border-bottom-left-radius: 6px;",
-                  "background: #ec4899; color: #ffffff; font-weight: bold; padding: 3px 6px;",
-                  "background: #fbcfe8; color: #ec4899; font-weight: bold; padding: 3px 8px; border-top-right-radius: 6px; border-bottom-right-radius: 6px;",
-                  e.target.value || "(empty)"
-                );
-              }}
               placeholder="Add a collaborative task..."
-              className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-900 text-sm text-blue-900"
+              required
+              className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:border-blue-900 text-sm text-blue-900"
             />
             <button
               type="submit"
-               className="flex items-center justify-center gap-1 bg-blue-900 font-extrabold text-white transition-colors hover:bg-pink-600 
+              className="flex items-center justify-center gap-1 bg-blue-900 font-extrabold text-white transition-colors hover:bg-pink-600 
               h-8 w-8 rounded-full text-xs sm:h-auto sm:w-auto sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm cursor-pointer"
             >
               <FontAwesomeIcon icon={faPlus} />
             </button>
           </div>
 
-          {/* Category Select: */}
-          <div className="relative w-full">
-            <button
-              type="button"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full font-bold flex items-center justify-between px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-blue-900 outline-none text-left cursor-pointer"
-            >
-              <span>{selectedCategoryName || "No category"}</span>
-              <FontAwesomeIcon icon={faChevronDown} className="text-blue-900 text-[10px]" />
-            </button>
+          <select
+            name="todoCategory"
+            className="
+              /* 1. Base & Typography */
+              w-full appearance-none cursor-pointer rounded-xl font-bold text-xs text-blue-900
+              /* 2. Padding & Layout */
+              px-4 py-1.5 pr-10 border border-slate-200 bg-slate-50 shadow-sm
+              /* 3. Focus & Transitions */
+              focus:outline-none focus:ring-3 focus:ring-blue-900 focus:border-transparent
+              /* 4. Custom blue SVG chevron (%231e3a8a = blue-900) */
+              bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%231e3a8a%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')]
+              bg-[length:1.1rem_1.1rem] bg-[right_0.75rem_center] bg-no-repeat
+            "
+          >
+            <option value="" className="bg-white text-slate-400 font-normal">
+              No category
+            </option>
 
-            {isDropdownOpen && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
-                <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-100 rounded-xl shadow-lg overflow-hidden z-20 py-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedCategoryId(undefined);
-                      setIsDropdownOpen(false);
-                    }}
-                    className="w-full text-left font-bold px-3 py-2 text-xs text-blue-900 hover:bg-slate-50 cursor-pointer"
-                  >
-                    No category
-                  </button>
-                  {uniqueCategories.map((cat: Category) => (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedCategoryId(cat.id);
-                        setIsDropdownOpen(false);
-                      }}
-                      className="w-full text-left font-bold px-3 py-2 text-xs text-blue-900 hover:bg-blue-50 cursor-pointer"
-                    >
-                      {cat.name}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
+            {uniqueCategories.map((cat: Category) => (
+              <option 
+                key={cat.id} 
+                value={cat.id} 
+                className="bg-white text-slate-900 font-medium py-1"
+              >
+                {cat.name}
+              </option>
+            ))}
+          </select>
+
         </form>
 
-        {/* Filter per category: */}
+        {/* Filter by category: */}
         <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
-           <button
+          <button
             onClick={() => setActiveFilterName("All")}
+
             className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
               ${ activeFilterName === "All"
                 ? "bg-blue-900 text-white font-extrabold"
                 : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-normal"
               }`}
           >
-            All ({todos?.length || 0})
+            All ({todos.length})
           </button>
 
           {uniqueCategories.map((cat: Category) => {
-            const validIds = categories?.filter((c: Category) => c.name === cat.name).map((c: Category) => c.id);
-            const count = todos?.filter((t: Todo) => t.categoryId && validIds.includes(t.categoryId)).length;
+            const validIds = categories.filter((c: Category) => c.name === cat.name).map((c: Category) => c.id);
+            const count = todos.filter((t: Todo) => t.categoryId && validIds.includes(t.categoryId)).length;
             const categoryIcon = CATEGORY_ICONS[cat.iconKey || ""] || faBriefcase;
             const styles = CATEGORY_COLORS[cat.color || "marine"] || CATEGORY_COLORS.marine;
 
             return (
-               <button
+              <button
                 key={cat.id}
-                onClick={() => setActiveFilterName(cat.name)} 
-                className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
+                onClick={() => setActiveFilterName(cat.name)}
+                 className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
                   ${ activeFilterName === cat.name
                     ? `${styles.activeBg} text-white font-extrabold`
                     : `${styles.text} bg-slate-100 hover:bg-slate-200 font-normal`
@@ -367,13 +334,19 @@ export default function TodoList() {
                     {editingId === todo.id ? (
                       <input
                         type="text"
-                        value={todo.title}
+                        defaultValue={todo.title}
                         maxLength={30}
-                        onChange={(e) => handleLiveEdit(todo.id, e.target.value)}
-                        onBlur={() => setEditingId(null)}
+                        onBlur={(e) => {
+                          handleLiveEdit(todo.id, e.target.value);
+                          setEditingId(null);
+                        }}
                         autoFocus
                         onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === "Escape") setEditingId(null);
+                          if (e.key === "Enter") {
+                            handleLiveEdit(todo.id, e.currentTarget.value);
+                            setEditingId(null);
+                          }
+                          if (e.key === "Escape") setEditingId(null);
                         }}
                         className={`flex-1 bg-white px-2 py-0.5 border ${styles.border} rounded text-sm outline-none`}
                       />
