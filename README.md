@@ -162,6 +162,10 @@ Traditionally, developers declare a `useState` hook for every single input field
 
 By adopting a **Pure Local-First** mindset, the local database (IndexedDB via Jazz) acts as the **single reactive source of truth**. We eliminate redundant intermediate states and let native HTML elements handle transient user inputs.
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/7e09b1d2-04bc-476e-ba18-29fa5bbdf11d" style="width: 500px; height: auto; object-fit: contain;" alt="React Miami interview with Anselm Eickhoff." />
+</p>
+
 ---
 
 ### What Concretely Changes in the Code?
