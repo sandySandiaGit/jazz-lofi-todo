@@ -233,8 +233,8 @@ return (
 
 ### Key Benefits
 
-1. **Zero Boilerplate**: eliminates repetitive useState declarations and onChange handlers for form inputs.
+**1. Zero Boilerplate**: eliminates repetitive useState declarations and onChange handlers for form inputs.
 
-2. **Optimized Performance**: prevents unnecessary React re-renders on every single keystroke.
+**2. Optimized Performance**: prevents unnecessary React re-renders on every single keystroke.
 
-3. **Direct Reactivity & Persistence**: writes directly to local storage (IndexedDB) with zero-latency UI updates via useAll().
+**3. Direct Reactivity & Persistence**: writes directly to local storage (IndexedDB) with zero-latency UI updates via useAll().
