@@ -180,9 +180,20 @@ By adopting a **Pure Local-First** mindset, the local database (IndexedDB via Ja
 >
 > While **useRef** could bypass these re-renders, it introduces heavy boilerplate and imperative DOM manipulation, making **native FormData** the **cleaner Local-First approach** !
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/270e3669-1be7-42de-ae8d-800f1e62ae8d" style="width: 500px; height: auto; object-fit: contain;" alt="Pressed keys console logs" />
-</p>
+<div align="center">
+<table border="0" style="width: 100%; border-collapse: collapse;">
+  <tr>
+    <td align="center" valign="bottom" style="border: 0px solid transparent;">
+      <img alt="PureLoFi" src="https://github.com/user-attachments/assets/49c2f25a-c980-4a28-b634-c8bf8d164dde" width="192" />
+      <p><b><code>TodoListPureLoFi Component</code></b></p>
+    </td>
+    <td align="center" valign="bottom" style="border: 0px solid transparent;">
+      <img alt="Keypress logs" src="https://github.com/user-attachments/assets/1a99f6d2-1419-4397-86af-02d3f76d6794" width="500" />
+      <p><b><code>TodoList Component</code></b></p>
+    </td>
+  </tr>
+</table>
+</div>
 
 ---
 
