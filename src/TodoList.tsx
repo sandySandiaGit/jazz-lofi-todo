@@ -108,14 +108,22 @@ export default function TodoList() {
     );
   }
 
+  const uniqueCategories = categories.filter(
+    (cat: Category, index: number, self: Category[]) =>
+      cat && self.findIndex((c: Category) => c.name === cat.name) === index
+  );
+
   const filteredTodos = todos
     .filter((todo: Todo): todo is Todo => Boolean(todo && todo.id))
     .filter((todo: Todo) => {
       if (activeFilterName === "All") return true;
       if (!todo.categoryId) return false;
 
-      const targetCategory = categories.find((c: Category) => c?.name === activeFilterName);
-      return todo.categoryId === targetCategory?.id;
+      const validCategoryIds = categories
+        .filter((c: Category) => c && c.name === activeFilterName)
+        .map((c: Category) => c.id);
+
+      return validCategoryIds.includes(todo.categoryId);
     });
 
   const handleAddTodo = (e: React.BaseSyntheticEvent) => {
@@ -223,7 +231,7 @@ export default function TodoList() {
                   >
                     No category
                   </button>
-                  {categories.map((cat: Category) => (
+                  {uniqueCategories.map((cat: Category) => (
                     <button
                       key={cat.id}
                       type="button"
@@ -255,7 +263,7 @@ export default function TodoList() {
             All ({todos?.length || 0})
           </button>
 
-          {categories.map((cat: Category) => {
+          {uniqueCategories.map((cat: Category) => {
             const validIds = categories?.filter((c: Category) => c.name === cat.name).map((c: Category) => c.id);
             const count = todos?.filter((t: Todo) => t.categoryId && validIds.includes(t.categoryId)).length;
             const categoryIcon = CATEGORY_ICONS[cat.iconKey || ""] || faBriefcase;

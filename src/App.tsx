@@ -7,32 +7,24 @@ import { JazzProvider, useDb, useAll } from "jazz-tools/react";
 import { useState, useEffect, useRef } from "react";
 import TodoList from "./TodoList.tsx";
 import TodoListPureLoFi from "./TodoListPureLoFi.tsx";
-import { app, type Category } from "./schema.ts";
+import { app } from "./schema.ts";
 
 function CategorySeeder() {
 
   const db = useDb();
-  const { data: categories = [], isLoading } = useAll(app?.categories);
-  const isSeeded = useRef(false);
+  const { data: categories = [], isLoading: isCategoriesLoading } = useAll(app?.categories);
+  const hasCheckedInit = useRef(false);
 
   useEffect(() => {
+    if (hasCheckedInit.current || isCategoriesLoading || !categories) return;
 
-    if (isSeeded.current || isLoading || !categories || !app?.categories) return;
-
-    const hasPersonal = categories.some((c: Category) => c?.name === "Personal");
-    const hasWork = categories.some((c: Category) => c?.name === "Work");
-
-    if (!hasPersonal) {
-        db.insert(app.categories, { name: "Personal", color: "pink", iconKey: "house" });
+    if (categories.length === 0) {
+      db.insert(app.categories, { name: "Personal", color: "pink", iconKey: "house" });
+      db.insert(app.categories, { name: "Work", color: "marine", iconKey: "briefcase" });
     }
-
-    if (!hasWork) {
-        db.insert(app.categories, { name: "Work", color: "marine", iconKey: "briefcase" });
-    }
-
-    isSeeded.current = true;
     
-  }, [categories, isLoading, db]);
+    hasCheckedInit.current = true; 
+  }, [categories, isCategoriesLoading, db]);
 
   return null; 
 }
