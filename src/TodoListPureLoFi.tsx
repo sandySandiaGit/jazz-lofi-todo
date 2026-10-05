@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useAll, useDb } from "jazz-tools/react";
 import { app, type Todo, type Category } from "./schema.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faFilePen, faTrashCan, faPlus, faBriefcase, faHouse,faCircleCheck, faCircleDot} from "@fortawesome/free-solid-svg-icons";
+import { CATEGORY_ICONS, CATEGORY_COLORS } from "./constants";
+import {faFilePen, faTrashCan, faPlus, faBriefcase, faCircleCheck, faCircleDot} from "@fortawesome/free-solid-svg-icons";
 
 /**
  * APPROACH 2: Pure Local-First Component (Uncontrolled / Native HTML)
@@ -14,45 +15,6 @@ import {faFilePen, faTrashCan, faPlus, faBriefcase, faHouse,faCircleCheck, faCir
  * - Native e.currentTarget.reset() clears the form instantly.
  * - Direct Reactive Persistence: Jazz useAll() listens directly to IndexedDB.
  */
-
-const CATEGORY_ICONS: Record<string, any> = {
-  briefcase: faBriefcase,
-  house: faHouse,
-};
-
-const CATEGORY_COLORS: Record<string, { activeBg: string; text: string; lightBg: string; border: string }> = {
-
-  blue: {
-    activeBg: "bg-blue-500",
-    text: "text-blue-500 hover:text-blue-600",
-    lightBg: "text-blue-600",
-    border: "border-blue-300 focus:border-blue-500 focus:text-blue-500"
-  },
-  indigo: {
-    activeBg: "bg-indigo-600",
-    text: "text-indigo-600 hover:text-indigo-700",
-    lightBg: "text-indigo-600",
-    border: "border-indigo-300 focus:border-indigo-600 focus:text-indigo-600"
-  },
-  pink: {
-    activeBg: "bg-pink-500",
-    text: "text-pink-500 hover:text-pink-600",
-    lightBg: "text-pink-500",
-    border: "border-pink-300 focus:border-pink-500 focus:text-pink-500"
-  },
-  marine: {
-    activeBg: "bg-blue-900",
-    text: "text-blue-900 hover:text-blue-900",
-    lightBg: "text-blue-900",
-    border: "border-blue-300 focus:border-blue-900 focus:text-blue-900"
-  },
-  orange: {
-    activeBg: "bg-orange-500",
-    text: "text-orange-500 hover:text-orange-600",
-    lightBg: "text-orange-600",
-    border: "border-orange-300 focus:border-orange-500 focus:text-orange-500"
-  }
-};
 
 export default function TodoListPureLoFi() {
 
@@ -67,20 +29,6 @@ export default function TodoListPureLoFi() {
   const [activeFilterName, setActiveFilterName] = useState<string>("All");
   const [todoToDelete, setTodoToDelete] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
-
-  // Use a ref instead of useState to avoid unnecessary re-renders:
-  const hasCheckedInit = useRef(false);
-
-  // Safely initialize default categories:
-  useEffect(() => {
-    if (hasCheckedInit.current || isCategoriesLoading || !categories) return;
-
-    if (categories.length === 0) {
-      db.insert(app.categories, { name: "Personal", color: "pink", iconKey: "house" });
-      db.insert(app.categories, { name: "Work", color: "marine", iconKey: "briefcase" });
-    }
-    hasCheckedInit.current = true;
-  }, [categories, isCategoriesLoading, db]);
 
   const checkRealConnection = async (timeout = 3000): Promise<boolean> => {
 
@@ -190,18 +138,14 @@ export default function TodoListPureLoFi() {
     }
   };
 
-  const uniqueCategories = categories.filter(
-    (cat: Category, index: number, self: Category[]) =>
-      cat && self.findIndex((c: Category) => c.name === cat.name) === index
-  );
-
   const filteredTodos = todos
     .filter((todo: Todo): todo is Todo => Boolean(todo && todo.id))
     .filter((todo: Todo) => {
       if (activeFilterName === "All") return true;
       if (!todo.categoryId) return false;
-      const validCategoryIds = categories.filter((c: Category) => c && c.name === activeFilterName).map((c: Category) => c.id);
-      return validCategoryIds.includes(todo.categoryId);
+
+      const targetCategory = categories.find((c: Category) => c?.name === activeFilterName);
+      return todo.categoryId === targetCategory?.id;
     });
 
   return (
@@ -258,7 +202,7 @@ export default function TodoListPureLoFi() {
               No category
             </option>
 
-            {uniqueCategories.map((cat: Category) => (
+            {categories.map((cat: Category) => (
               <option 
                 key={cat.id} 
                 value={cat.id} 
@@ -285,7 +229,7 @@ export default function TodoListPureLoFi() {
             All ({todos.length})
           </button>
 
-          {uniqueCategories.map((cat: Category) => {
+          {categories.map((cat: Category) => {
             const validIds = categories.filter((c: Category) => c.name === cat.name).map((c: Category) => c.id);
             const count = todos.filter((t: Todo) => t.categoryId && validIds.includes(t.categoryId)).length;
             const categoryIcon = CATEGORY_ICONS[cat.iconKey || ""] || faBriefcase;
