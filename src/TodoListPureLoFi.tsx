@@ -145,11 +145,11 @@ export default function TodoListPureLoFi() {
   }, []);
 
   if (!app || !app.todos || !app.categories) {
-    return <p className="text-center text-slate-400 py-8 animate-pulse">Initialisation de la structure Jazz...</p>;
+    return <p className="text-center text-slate-400 py-8 animate-pulse">Initializing Jazz schema...</p>;
   }
 
   if (isTodosLoading || isCategoriesLoading) {
-    return <p className="text-center text-slate-400 py-8 animate-pulse">Chargement et synchronisation...</p>;
+    return <p className="text-center text-slate-400 py-8 animate-pulse">Loading and syncing...</p>;
   }
 
   // --- CRUD ACTIONS (Zero useState needed for the form !!) ---
@@ -196,11 +196,11 @@ export default function TodoListPureLoFi() {
   );
 
   const filteredTodos = todos
-    .filter((todo): todo is Todo => Boolean(todo && todo.id))
-    .filter((todo) => {
+    .filter((todo: Todo): todo is Todo => Boolean(todo && todo.id))
+    .filter((todo: Todo) => {
       if (activeFilterName === "All") return true;
       if (!todo.categoryId) return false;
-      const validCategoryIds = categories.filter((c) => c && c.name === activeFilterName).map((c) => c.id);
+      const validCategoryIds = categories.filter((c: Category) => c && c.name === activeFilterName).map((c: Category) => c.id);
       return validCategoryIds.includes(todo.categoryId);
     });
 
