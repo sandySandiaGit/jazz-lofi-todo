@@ -10,27 +10,27 @@ import { schema as s } from "jazz-tools";
 
 const schema = {
 
-    todos: s.table({
+  todos: s.table({
 
-        // Raw optional foreign key required for s.rel:
-        categoryId: s.uuid().optional(),
-        title: s.string(),
-        done: s.boolean(),
-    },
-    {
-        // Foreign key relation pointing to the 'categories' table:
-        category: s.rel("categories", "categoryId"),
-    }),
+    // Raw optional foreign key required for s.rel:
+    categoryId: s.uuid().optional(),
+    title: s.string(),
+    done: s.boolean(),
+  },
+  {
+    // Foreign key relation pointing to the 'categories' table:
+    category: s.rel("categories", "categoryId"),
+  }),
 
-    categories: s.table({
-        name: s.string(),
-        color: s.string(),
-        iconKey: s.string(),
-    },
-    {
-        // Reverse relation mapping: resolves all Todos linked to this Category
-        todos: s.reverse("todos", "category"),
-    }),
+  categories: s.table({
+    name: s.string(),
+    color: s.string(),
+    iconKey: s.string(),
+  },
+  {
+    // Reverse relation mapping: resolves all Todos linked to this Category
+    todos: s.reverse("todos", "category"),
+  }),
 };
 
 // Infer the schema type and initialize the Jazz application context:

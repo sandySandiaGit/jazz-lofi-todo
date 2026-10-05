@@ -11,27 +11,30 @@ import { app, type Category } from "./schema.ts";
 
 function CategorySeeder() {
 
-    const db = useDb();
-    const { data: categories = [], isLoading } = useAll(app?.categories);
-    const isSeeded = useRef(false);
+  const db = useDb();
+  const { data: categories = [], isLoading } = useAll(app?.categories);
+  const isSeeded = useRef(false);
 
-    useEffect(() => {
-        if (isSeeded.current || isLoading || !categories || !app?.categories) return;
+  useEffect(() => {
 
-        const hasPersonal = categories.some((c: Category) => c?.name === "Personal");
-        const hasWork = categories.some((c: Category) => c?.name === "Work");
+    if (isSeeded.current || isLoading || !categories || !app?.categories) return;
 
-        if (!hasPersonal) {
-            db.insert(app.categories, { name: "Personal", color: "pink", iconKey: "house" });
-        }
-        if (!hasWork) {
-            db.insert(app.categories, { name: "Work", color: "marine", iconKey: "briefcase" });
-        }
+    const hasPersonal = categories.some((c: Category) => c?.name === "Personal");
+    const hasWork = categories.some((c: Category) => c?.name === "Work");
 
-        isSeeded.current = true;
-    }, [categories, isLoading, db]);
+    if (!hasPersonal) {
+        db.insert(app.categories, { name: "Personal", color: "pink", iconKey: "house" });
+    }
 
-    return null; 
+    if (!hasWork) {
+        db.insert(app.categories, { name: "Work", color: "marine", iconKey: "briefcase" });
+    }
+
+    isSeeded.current = true;
+    
+  }, [categories, isLoading, db]);
+
+  return null; 
 }
 
 // ARCHITECTURAL NOTE:
@@ -40,34 +43,35 @@ function CategorySeeder() {
 // the React provider now directly consumes the high-level 'AccountHandle' object.
 // From documentation: "Prepare the account outside the context with createAccountManager" (see: main.tsx)
 export default function App({ account }: { account: AccountHandle }) {
-    const [usePureLoFi, setUsePureLoFi] = useState(false);
 
-    return (
-        <JazzProvider
-            config={{
-                appId: import.meta.env.VITE_JAZZ_APP_ID,
-                serverUrl: "https://v2.sync.jazz.tools/",
-                account,
-            }}
+  const [usePureLoFi, setUsePureLoFi] = useState(false);
+
+  return (
+    <JazzProvider
+      config={{
+        appId: import.meta.env.VITE_JAZZ_APP_ID,
+        serverUrl: "https://v2.sync.jazz.tools/",
+        account,
+      }}
+    >
+      <CategorySeeder />
+
+      <div className="bg-blue-50 text-center px-1 py-5">
+        <h2 className="text-pink-500 font-extrabold">
+          Jazz Local-First Demo
+        </h2>
+        <button
+          onClick={() => setUsePureLoFi(!usePureLoFi)}
+          className="cursor-pointer text-blue-900 hover:font-extrabold"
         >
-            <CategorySeeder />
+          Switch to{" "}
+          {usePureLoFi
+            ? "Standard React (useStates)"
+            : "Pure Local-First (FormData)"}
+        </button>
+      </div>
 
-            <div className="bg-blue-50 text-center px-1 py-5">
-                <h2 className="text-pink-500 font-extrabold">
-                    Jazz Local-First Demo
-                </h2>
-                <button
-                    onClick={() => setUsePureLoFi(!usePureLoFi)}
-                    className="cursor-pointer text-blue-900 hover:font-extrabold"
-                >
-                    Switch to{" "}
-                    {usePureLoFi
-                        ? "Standard React (useStates)"
-                        : "Pure Local-First (FormData)"}
-                </button>
-            </div>
-
-            {usePureLoFi ? <TodoListPureLoFi /> : <TodoList />}
-        </JazzProvider>
-    );
+      {usePureLoFi ? <TodoListPureLoFi /> : <TodoList />}
+    </JazzProvider>
+  );
 }
