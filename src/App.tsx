@@ -3,31 +3,10 @@
 // "Create the basic structure for your app with Jazz and a to-do list."
 
 import type { AccountHandle } from "jazz-tools";
-import { JazzProvider, useDb, useAll } from "jazz-tools/react";
-import { useState, useEffect, useRef } from "react";
+import { JazzProvider } from "jazz-tools/react";
+import { useState } from "react";
 import TodoList from "./TodoList.tsx";
 import TodoListPureLoFi from "./TodoListPureLoFi.tsx";
-import { app } from "./schema.ts";
-
-function CategorySeeder() {
-
-  const db = useDb();
-  const { data: categories = [], isLoading: isCategoriesLoading } = useAll(app?.categories);
-  const hasCheckedInit = useRef(false);
-
-  useEffect(() => {
-    if (hasCheckedInit.current || isCategoriesLoading || !categories) return;
-
-    if (categories.length === 0) {
-      db.insert(app.categories, { name: "Personal", color: "pink", iconKey: "house" });
-      db.insert(app.categories, { name: "Work", color: "marine", iconKey: "briefcase" });
-    }
-    
-    hasCheckedInit.current = true; 
-  }, [categories, isCategoriesLoading, db]);
-
-  return null; 
-}
 
 // ARCHITECTURAL NOTE:
 // In earlier Jazz APIs, backend initialization relied on raw secrets or internal types
@@ -46,8 +25,6 @@ export default function App({ account }: { account: AccountHandle }) {
         account,
       }}
     >
-      <CategorySeeder />
-
       <div className="bg-blue-50 text-center px-1 py-5">
         <h2 className="text-pink-500 font-extrabold">
           Jazz Local-First Demo

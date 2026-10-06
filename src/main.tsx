@@ -19,7 +19,7 @@ const serverUrl = "https://v2.sync.jazz.tools/"
 // ensuring the UI doesn't mount until Jazz's local infrastructure is fully ready.
 // Under the hood, Jazz is performing essential initialization tasks:
 //   - Initializing the local client-side database (IndexedDB)
-//   - Loading cryptographic keys for the application (`appId`)
+//   - Loading cryptographic keys for the application (appId)
 //   - Verifying if a secure session or authentication token already exists on this device:
 const accounts = await createAccountManager({ appId, serverUrl })
 
@@ -49,6 +49,8 @@ createRoot(document.getElementById('root')!).render(
 // Note: The 'import.meta.env.PROD' check prevents the Service Worker from caching 
 // the Vite local development server (which would break live hot-reloading/HMR updates).
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
+
+  //let refreshing = false;
   const registerSW = () => {
     navigator.serviceWorker
       .register("/sw.js")

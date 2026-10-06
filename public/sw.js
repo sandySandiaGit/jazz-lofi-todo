@@ -1,215 +1,112 @@
-const VERSION = "14"; // Change it to force a hard cache update!
-const CACHE_NAME = "V" + VERSION;
-const OFFLINE_URL = "/offline.html";
+const CACHE_NAME = "jazz-pwa-v20";
+const STATIC_SHELL = ["/", "/index.html"];
 
-// Only immutable root files are precached at startup (in 1a)
-// (Static root files vs dynamically hashed assets handled below in 1b):
-const STATIC_ASSETS = [
-  OFFLINE_URL,
-  "/",
-  "/index.html",
-  "/manifest.json",
-  "/favicon.ico",
-  "/icon-128.png", 
-  "/icon-512.png"
-];
-
-// =================================================================================
-// 1. INSTALLATION - Precaching base files + Vite hashed assets during installation
-// (prevents requiring an initial online reload ===> 1a et 1b !!!!)
-// =================================================================================
+// 1. INSTALL : Precache uniquement le shell de l'application (sans scan récursif fragile):
+// 1. INSTALL : Precache app shell only (no fragile recursive scan):
 self.addEventListener("install", (event) => {
-
   console.log("[SW] Installing version:", CACHE_NAME);
-
-  self.skipWaiting();
 
   event.waitUntil(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
-
-      // 1a. Precache static assets:
-      for (const url of STATIC_ASSETS) {
+      for (const url of STATIC_SHELL) {
         try {
           await cache.add(url);
         } catch (err) {
-          console.warn("[SW] Initial precache failed for:", url, err);
+          console.warn("[SW] Shell precache skipped for:", url, err);
         }
       }
-
-      // 1b. DEEP VITE PARSING & WASM FIX: Recursive scan for dynamic imports & WASM modules
-      try {
-        const indexResp = await fetch("/index.html");
-        const html = await indexResp.text();
-        const assetsToCache = new Set();
-
-        // Helper to safely format paths without double slashes:
-        const normalizePath = (rawPath) => {
-          if (!rawPath) return null;
-          let cleaned = rawPath.replace(/['"`]/g, "").replace(/^\.\//, "").replace(/^\//, "");
-          if (!cleaned.startsWith("assets/")) {
-            cleaned = "assets/" + cleaned;
-          }
-          return "/" + cleaned;
-        };
-
-        // Find direct asset links in index.html:
-        const htmlRegex = /(?:src|href)="([^"]+)"/g;
-        let match;
-        while ((match = htmlRegex.exec(html)) !== null) {
-          const path = normalizePath(match[1]);
-          if (path && path.includes("-")) assetsToCache.add(path);
-        }
-
-        // Recursive scan queue to inspect all discovered JS bundles:
-        const queue = Array.from(assetsToCache);
-        const processed = new Set();
-
-        while (queue.length > 0) {
-          const assetUrl = queue.shift();
-          if (processed.has(assetUrl)) continue;
-          processed.add(assetUrl);
-
-          if (assetUrl.endsWith(".js")) {
-            try {
-              const jsResp = await fetch(assetUrl);
-              if (!jsResp.ok) continue;
-              const jsText = await jsResp.text();
-
-              // 1. Match strings ending in .js, .wasm, or .css inside quotes or backticks:
-              const jsChunkRegex = /(?:["'`])([^"'\`\s?#]+\.(?:js|wasm|css))(?:["'`])/g;
-              let jsMatch;
-              while ((jsMatch = jsChunkRegex.exec(jsText)) !== null) {
-                const chunkPath = normalizePath(jsMatch[1]);
-                if (chunkPath && chunkPath.includes("-") && !assetsToCache.has(chunkPath)) {
-                  console.log("[SW Scan] Discovered chunk:", chunkPath);
-                  assetsToCache.add(chunkPath);
-                  if (chunkPath.endsWith(".js")) queue.push(chunkPath);
-                }
-              }
-
-              // 2. Fallback scan specifically targeting jazz/wasm references:
-              const jazzWasmRegex = /(?:assets\/)?(jazz[a-zA-Z0-9_-]*\.(?:js|wasm))/gi;
-              let wasmMatch;
-              while ((wasmMatch = jazzWasmRegex.exec(jsText)) !== null) {
-                const wasmPath = normalizePath(wasmMatch[1]);
-                if (wasmPath && !assetsToCache.has(wasmPath)) {
-                  console.log("[SW Scan] Explicit WASM target found:", wasmPath);
-                  assetsToCache.add(wasmPath);
-                }
-              }
-            } catch (e) {
-              console.warn("[SW] Deep scan failed for bundle:", assetUrl, e);
-            }
-          }
-        }
-
-        // Cache all discovered static assets and WASM modules:
-        for (const asset of assetsToCache) {
-          console.log("[SW] Auto-precaching asset:", asset);
-          await cache.add(asset);
-        }
-      } catch (err) {
-        console.warn("[SW] Failed to parse assets:", err);
-      }
+      await self.skipWaiting();
     })()
   );
 });
 
-// ===========================================================
-// 2. ACTIVATION AND CLEANUP OF OLD CACHES
-// ===========================================================
+// 2. ACTIVATE : Suppression des anciens caches et prise de contrôle immédiate:
+// 2. ACTIVATE : Delete legacy caches and claim clients immediately:
 self.addEventListener("activate", (event) => {
-
   console.log("[SW] Activating version:", CACHE_NAME);
 
   event.waitUntil(
     (async () => {
-     
-      // Retrieve all existing cache names:
       const cacheNames = await caches.keys();
-
-      // Delete all legacy caches except the current one (CACHE_NAME):
       await Promise.all(
         cacheNames
-          .filter(name => name !== CACHE_NAME) 
-          .map(name => {
-            console.log(`[SW] Deleting old cache: ${name}`);
-            return caches.delete(name);
-          })
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
       );
+      await self.clients.claim();
     })()
   );
-  self.clients.claim();
 });
 
-// ================================================================
-// 3. CACHE-FIRST STRATEGY with Network Fallback & Runtime Caching
-// ================================================================
+// 3. FETCH : Stratégies différenciées (WASM / Assets vs Navigation):
+// 3. FETCH : Differentiated strategies (WASM / Assets vs Navigation):
 self.addEventListener("fetch", (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
 
-  if (event.request.method !== "GET") return;
-
-  const url = new URL(event.request.url);
-
-  // ------------------------------
-  // IGNORE VITE DEVELOPMENT FILES:
-  // ------------------------------
-  if (url.pathname.startsWith("/@") || url.pathname.startsWith("/src/") || url.search.includes("t=")) {
-    return; // Stop the SW here since the browser will handle it natively!
+  // On n'intercepte que les requêtes GET sur notre propre origine:
+  // Intercept GET requests on own origin only:
+  if (request.method !== "GET" || url.origin !== self.location.origin) {
+    return;
   }
 
-  if (url.origin !== location.origin) return;
+  // STRATÉGIE A : Fichiers WASM, JS et CSS dans /assets/ -> Cache-First avec fallback Réseau:
+  // STRATEGY A : WASM, JS, and CSS files in /assets/ -> Cache-First with Network fallback:
+  if (url.pathname.startsWith("/assets/") || url.pathname.endsWith(".wasm")) {
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(CACHE_NAME);
+        const cachedResponse = await cache.match(request);
 
+        // 1. Si le fichier WASM ou JS est déjà en cache, on le sert immédiatement:
+        // 1. If WASM or JS file is already cached, serve it immediately:
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        // 2. Sinon, on va le chercher sur le réseau et on le met en cache pour la suite:
+        // 2. Otherwise, fetch from network and store in cache for next time:
+        try {
+          const networkResponse = await fetch(request);
+          if (networkResponse && networkResponse.status === 200) {
+            // On met en cache en arrière-plan sans bloquer ni lever d'erreur non capturée(via catch())
+            // Background cache update without blocking or throwing unhandled errors (via catch())
+            cache.put(request, networkResponse.clone()).catch((err) => {
+              console.warn("[SW] Cache put skipped:", err);
+            });
+          }
+          return networkResponse;
+        } catch (err) {
+          console.error("[SW] Network fetch failed for asset:", request.url, err);
+          return Response.error();
+        }
+      })()
+    );
+    return;
+  }
+
+  // STRATÉGIE B : Navigation HTML & API -> Network-First avec fallback Cache:
+  // STRATEGY B : HTML Navigation & API -> Network-First with Cache fallback
   event.respondWith(
     (async () => {
-      const cache = await caches.open(CACHE_NAME);
-
-      // STEP 1: Search the cache for the requested resource, ignoring strict URL query parameters
-      const cachedResponse = 
-        await cache.match(event.request, { ignoreSearch: true, ignoreVary: true }) || 
-        await cache.match(event.request.url, { ignoreSearch: true, ignoreVary: true });
-
-      if (cachedResponse) return cachedResponse;
-      
-      // STEP 2: For an SPA, if navigating to the root or a route, look for /index.html
-      if (event.request.mode === "navigate") {
-        const indexResponse = await cache.match("/index.html") || await cache.match("/");
-        if (indexResponse) return indexResponse;
-      }
-
-      // STEP 3: Otherwise, attempt to fetch from the network
       try {
-        const networkResponse = await fetch(event.request);
-        
-        // FIX: Only cache successful responses, and normalize the key to ignore changing query strings
-        if (networkResponse.ok) {
-          // We cache by the clean pathname URL to match our ignoreSearch configuration rules
-          await cache.put(url.pathname, networkResponse.clone());
+        const networkResponse = await fetch(request);
+        if (networkResponse && networkResponse.status === 200) {
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(request, networkResponse.clone()).catch((err) => {
+            console.warn("[SW] Cache put skipped:", err);
+          });
         }
         return networkResponse;
+      } catch (err) {
+        const cachedResponse = await caches.match(request);
+        if (cachedResponse) return cachedResponse;
 
-      } catch (error) {
-
-        console.warn("[SW] Offline, network unreachable for:", url.pathname);
-
-        // STEP 4: In case of network failure during HTML navigation
-        if (event.request.mode === "navigate") {
-          const offlinePage = (await cache.match(OFFLINE_URL)) || (await cache.match("/index.html"));
-          if (offlinePage) return offlinePage;
+        if (request.mode === "navigate") {
+          return (await caches.match("/index.html")) || Response.error();
         }
-
-        // STEP 5: Return a clean HTTP response with COOP/COEP headers 
-        // to fix the Web Worker issue instead of throwing an error:
-        return new Response("Resource unavailable offline", {
-            status: 503,
-            statusText: "Service Unavailable",
-            headers: new Headers({ 
-                "Content-Type": "text/plain",
-                "Cross-Origin-Opener-Policy": "same-origin",
-                "Cross-Origin-Embedder-Policy": "credentialless"
-            }),
-        });
+        return Response.error();
       }
     })()
   );
