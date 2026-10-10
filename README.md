@@ -172,7 +172,7 @@ By adopting a **Pure Local-First** mindset, the local database (IndexedDB via Ja
 
 | Concept | Traditional React Pattern | Pure Local-First Pattern (Jazz) |
 | :--- | :--- | :--- |
-| **Form Inputs** | `useState` updated on every keystroke (`onChange`) | Native HTML form + `FormData` extracted on submission |
+| **Form Inputs** | Controlled inputs via `useState` (updated on every keystroke via `onChange`) | Native HTML form + `FormData` extracted on submission |
 | **Business Data** | Duplicated between `useState` and the database | Stored and observed directly in Jazz via `useAll()` |
 | **React State (`useState`)** | Overused for everything (inputs, data, filters) | **Reserved strictly for ephemeral UI state** (e.g., `editingId`, open modals) |
 | **React Re-renders** | Triggered on every single keypress | Triggered only when the local database mutates |
