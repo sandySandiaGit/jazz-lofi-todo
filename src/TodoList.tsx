@@ -3,7 +3,7 @@ import { useAll, useDb } from "jazz-tools/react";
 import { app, type Todo, type Category } from "./schema.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CATEGORY_ICONS, CATEGORY_COLORS } from "./constants";
-import {faFilePen, faTrashCan, faPlus, faBriefcase, faCircleCheck, faCircleDot, faChevronDown} from "@fortawesome/free-solid-svg-icons";
+import { faFilePen, faTrashCan, faPlus, faBriefcase, faCircleCheck, faCircleDot, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 
 /**
  * APPROACH 1: Traditional Controlled Component
@@ -26,10 +26,10 @@ export default function TodoList() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
-  const [activeFilterName, setActiveFilterName] = useState<string>("All");
+  const [activeFilterId, setActiveFilterId] = useState<string>("All");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [todoToDelete, setTodoToDelete] = useState<string | null>(null);
-  
+
   const checkRealConnection = async (timeout = 3000): Promise<boolean> => {
 
     if (!navigator.onLine) {
@@ -42,8 +42,8 @@ export default function TodoList() {
 
       await fetch("https://httpbin.org", {
         method: "HEAD",
-        cache: "no-store", 
-        mode: "no-cors", 
+        cache: "no-store",
+        mode: "no-cors",
         signal: controller.signal
       });
 
@@ -51,7 +51,7 @@ export default function TodoList() {
 
       console.log("We're really online !!!");
 
-      return true; 
+      return true;
 
     } catch (error: any) {
 
@@ -72,7 +72,7 @@ export default function TodoList() {
       const result = await checkRealConnection();
       setIsOnline(result);
     };
-    
+
     triggerCheck();
 
     // Re-verify connection health every 10 seconds automatically:
@@ -108,20 +108,22 @@ export default function TodoList() {
     );
   }
 
-  const filteredTodos = todos
-    .filter((todo: Todo): todo is Todo => Boolean(todo && todo.id))
-    .filter((todo: Todo) => {
-      if (activeFilterName === "All") return true;
-      if (!todo.categoryId) return false;
-
-      const targetCategory = categories.find((c: Category) => c?.name === activeFilterName);
-      return todo.categoryId === targetCategory?.id;
+  const filteredTodos = activeFilterId === "All"
+    ? todos
+    : todos.filter((todo) => {
+       // If the user wants tasks without a category, keep those that are null or undefined:
+      if (activeFilterId === "none") {
+        //return todo.categoryId === null || todo.categoryId === undefined;
+        return !todo.categoryId;
+      }
+      // Otherwise, compare the category IDs normally:
+      return todo.categoryId === activeFilterId;
     });
 
   const handleAddTodo = (e: React.BaseSyntheticEvent) => {
 
     e.preventDefault();
-    
+
     if (!newTodoTitle.trim()) return;
 
     // 1. Write directly to Jazz local database:
@@ -191,7 +193,7 @@ export default function TodoList() {
             />
             <button
               type="submit"
-               className="flex items-center justify-center gap-1 bg-blue-900 font-extrabold text-white transition-colors hover:bg-pink-600 
+              className="flex items-center justify-center gap-1 bg-blue-900 font-extrabold text-white transition-colors hover:bg-pink-600 
               h-8 w-8 rounded-full text-xs sm:h-auto sm:w-auto sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm cursor-pointer"
             >
               <FontAwesomeIcon icon={faPlus} />
@@ -244,10 +246,10 @@ export default function TodoList() {
 
         {/* Filter per category: */}
         <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
-           <button
-            onClick={() => setActiveFilterName("All")}
+          <button
+            onClick={() => setActiveFilterId("All")}
             className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
-              ${ activeFilterName === "All"
+              ${activeFilterId === "All"
                 ? "bg-blue-900 text-white font-extrabold"
                 : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-normal"
               }`}
@@ -255,24 +257,35 @@ export default function TodoList() {
             All ({todos?.length || 0})
           </button>
 
+          <button
+            onClick={() => setActiveFilterId("none")}
+            className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
+              ${activeFilterId === "none"
+                ? "bg-blue-900 text-white font-extrabold"
+                : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-normal"
+              }`}
+          >
+            {/* None ({todos.filter(todo => todo.categoryId === null || todo.categoryId === undefined).length}) */}
+            {/* Using !todo.categoryId counts all tasks without a category (null or undefined): */}
+            None ({todos?.filter(todo => !todo.categoryId).length || 0})
+          </button>
+
           {categories.map((cat: Category) => {
-            const validIds = categories?.filter((c: Category) => c.name === cat.name).map((c: Category) => c.id);
-            const count = todos?.filter((t: Todo) => t.categoryId && validIds.includes(t.categoryId)).length;
             const categoryIcon = CATEGORY_ICONS[cat.iconKey || ""] || faBriefcase;
             const styles = CATEGORY_COLORS[cat.color || "marine"] || CATEGORY_COLORS.marine;
 
             return (
-               <button
+              <button
                 key={cat.id}
-                onClick={() => setActiveFilterName(cat.name)} 
+                onClick={() => setActiveFilterId(cat.id)}
                 className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
-                  ${ activeFilterName === cat.name
+                  ${activeFilterId === cat.id
                     ? `${styles.activeBg} text-white font-extrabold`
                     : `${styles.text} bg-slate-100 hover:bg-slate-200 font-normal`
                   }`}
               >
                 <FontAwesomeIcon icon={categoryIcon} className="mr-1" />
-                {cat.name} ({count})
+                {cat.name} ({todos.filter((todo) => todo.categoryId === cat.id).length})
               </button>
             );
           })}
@@ -317,9 +330,8 @@ export default function TodoList() {
                     ) : (
                       <span
                         onClick={() => setEditingId(todo.id)}
-                        className={`text-sm cursor-pointer flex-1 ${
-                          todo.done ? "line-through text-slate-400 font-medium" : `${styles.text} font-bold`
-                        }`}
+                        className={`text-sm cursor-pointer flex-1 ${todo.done ? "line-through text-slate-400 font-medium" : `${styles.text} font-bold`
+                          }`}
                       >
                         {todo.title}
                       </span>

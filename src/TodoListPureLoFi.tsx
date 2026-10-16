@@ -138,14 +138,16 @@ export default function TodoListPureLoFi() {
     }
   };
 
-  const filteredTodos = todos
-    .filter((todo: Todo): todo is Todo => Boolean(todo && todo.id))
-    .filter((todo: Todo) => {
-      if (activeFilterName === "All") return true;
-      if (!todo.categoryId) return false;
-
-      const targetCategory = categories.find((c: Category) => c?.name === activeFilterName);
-      return todo.categoryId === targetCategory?.id;
+  const filteredTodos = activeFilterName === "All"
+  ? todos
+  : todos.filter((todo) => {
+       // If the user wants tasks without a category, keep those that are null or undefined:
+      if (activeFilterName === "none") {
+        //return todo.categoryId === null || todo.categoryId === undefined;
+        return !todo.categoryId;
+      }
+      // Otherwise, compare the category IDs normally:
+      return todo.categoryId === activeFilterName;
     });
 
   return (
@@ -229,24 +231,35 @@ export default function TodoListPureLoFi() {
             All ({todos.length})
           </button>
 
+          <button
+            onClick={() => setActiveFilterName("none")}
+            className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
+              ${ activeFilterName === "none"
+                ? "bg-blue-900 text-white font-extrabold"
+                : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-normal"
+              }`}
+          >
+            {/* None ({todos.filter(todo => todo.categoryId === null || todo.categoryId === undefined).length}) */}
+            {/* Using !todo.categoryId counts all tasks without a category (null or undefined): */}
+            None ({todos?.filter(todo => !todo.categoryId).length || 0})
+          </button>
+
           {categories.map((cat: Category) => {
-            const validIds = categories.filter((c: Category) => c.name === cat.name).map((c: Category) => c.id);
-            const count = todos.filter((t: Todo) => t.categoryId && validIds.includes(t.categoryId)).length;
             const categoryIcon = CATEGORY_ICONS[cat.iconKey || ""] || faBriefcase;
             const styles = CATEGORY_COLORS[cat.color || "marine"] || CATEGORY_COLORS.marine;
 
             return (
               <button
                 key={cat.id}
-                onClick={() => setActiveFilterName(cat.name)}
+                onClick={() => setActiveFilterName(cat.id)}
                  className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
-                  ${ activeFilterName === cat.name
+                  ${ activeFilterName === cat.id
                     ? `${styles.activeBg} text-white font-extrabold`
                     : `${styles.text} bg-slate-100 hover:bg-slate-200 font-normal`
                   }`}
               >
                 <FontAwesomeIcon icon={categoryIcon} className="mr-1" />
-                {cat.name} ({count})
+                {cat.name} ({todos.filter((todo) => todo.categoryId === cat.id).length})
               </button>
             );
           })}
