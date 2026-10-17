@@ -112,11 +112,13 @@ export default function TodoList() {
   // const filteredTodos = activeFilterId === "All"
   //   ? todos
   //   : todos.filter((todo) => {
-  //     // If the user wants tasks without a category, keep those that are null or undefined:
-  //     if (activeFilterId === "none")  return !todo.categoryId;
-  //       //return todo.categoryId === null || todo.categoryId === undefined;
-       
-  //     // Otherwise, compare the category IDs normally:
+
+  //     // Guard clause / early return for tasks without a category:
+  //     // Using "!todo.categoryId" captures null, undefined, and empty string ("")
+  //     // Equivalent to: todo.categoryId === null || todo.categoryId === undefined || todo.categoryId === ""
+  //     if (activeFilterId === "none") return !todo.categoryId;
+
+  //     // Otherwise, compare the category IDs normally (implicit else):
   //     return todo.categoryId === activeFilterId;
   //   });
 
@@ -124,7 +126,6 @@ export default function TodoList() {
   const filteredTodos = activeFilterId === "All"
     ? todos
     : todos.filter((todo) => activeFilterId === "none" ? !todo.categoryId : todo.categoryId === activeFilterId);
-
 
   const handleAddTodo = (e: React.BaseSyntheticEvent) => {
 
