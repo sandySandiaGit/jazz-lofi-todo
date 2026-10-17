@@ -26,6 +26,7 @@ export default function TodoList() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
+  // Initialized with "All" so all todos are displayed on mount:
   const [activeFilterId, setActiveFilterId] = useState<string>("All");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [todoToDelete, setTodoToDelete] = useState<string | null>(null);
@@ -108,17 +109,22 @@ export default function TodoList() {
     );
   }
 
+  // const filteredTodos = activeFilterId === "All"
+  //   ? todos
+  //   : todos.filter((todo) => {
+  //     // If the user wants tasks without a category, keep those that are null or undefined:
+  //     if (activeFilterId === "none")  return !todo.categoryId;
+  //       //return todo.categoryId === null || todo.categoryId === undefined;
+       
+  //     // Otherwise, compare the category IDs normally:
+  //     return todo.categoryId === activeFilterId;
+  //   });
+
+  // OR ONE-LINER version:
   const filteredTodos = activeFilterId === "All"
     ? todos
-    : todos.filter((todo) => {
-       // If the user wants tasks without a category, keep those that are null or undefined:
-      if (activeFilterId === "none") {
-        //return todo.categoryId === null || todo.categoryId === undefined;
-        return !todo.categoryId;
-      }
-      // Otherwise, compare the category IDs normally:
-      return todo.categoryId === activeFilterId;
-    });
+    : todos.filter((todo) => activeFilterId === "none" ? !todo.categoryId : todo.categoryId === activeFilterId);
+
 
   const handleAddTodo = (e: React.BaseSyntheticEvent) => {
 

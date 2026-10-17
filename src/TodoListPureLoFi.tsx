@@ -3,7 +3,7 @@ import { useAll, useDb } from "jazz-tools/react";
 import { app, type Todo, type Category } from "./schema.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CATEGORY_ICONS, CATEGORY_COLORS } from "./constants";
-import {faFilePen, faTrashCan, faPlus, faBriefcase, faCircleCheck, faCircleDot} from "@fortawesome/free-solid-svg-icons";
+import { faFilePen, faTrashCan, faPlus, faBriefcase, faCircleCheck, faCircleDot } from "@fortawesome/free-solid-svg-icons";
 
 /**
  * APPROACH 2: Pure Local-First Component (Uncontrolled / Native HTML)
@@ -26,7 +26,8 @@ export default function TodoListPureLoFi() {
 
   // Purely ephemeral UI state:
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [activeFilterName, setActiveFilterName] = useState<string>("All");
+  // Initialized with "All" so all todos are displayed on mount:
+  const [activeFilterId, setActiveFilterId] = useState<string>("All");
   const [todoToDelete, setTodoToDelete] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
 
@@ -42,8 +43,8 @@ export default function TodoListPureLoFi() {
 
       await fetch("https://httpbin.org", {
         method: "HEAD",
-        cache: "no-store", 
-        mode: "no-cors", 
+        cache: "no-store",
+        mode: "no-cors",
         signal: controller.signal
       });
 
@@ -51,7 +52,7 @@ export default function TodoListPureLoFi() {
 
       console.log("We're really online !!!");
 
-      return true; 
+      return true;
 
     } catch (error: any) {
 
@@ -72,7 +73,7 @@ export default function TodoListPureLoFi() {
       const result = await checkRealConnection();
       setIsOnline(result);
     };
-    
+
     triggerCheck();
 
     // Re-verify connection health every 10 seconds automatically:
@@ -120,7 +121,7 @@ export default function TodoListPureLoFi() {
     });
 
     // 3. Reset form input and select using native HTML DOM method:
-    e.currentTarget.reset(); 
+    e.currentTarget.reset();
   };
 
   const toggleTodo = (id: string, currentStatus: boolean) => {
@@ -138,29 +139,33 @@ export default function TodoListPureLoFi() {
     }
   };
 
-  const filteredTodos = activeFilterName === "All"
-  ? todos
-  : todos.filter((todo) => {
-       // If the user wants tasks without a category, keep those that are null or undefined:
-      if (activeFilterName === "none") {
-        //return todo.categoryId === null || todo.categoryId === undefined;
-        return !todo.categoryId;
-      }
+  const filteredTodos = activeFilterId === "All"
+    ? todos
+    : todos.filter((todo) => {
+      // If the user wants tasks without a category, keep those that are null or undefined:
+      if (activeFilterId === "none") return !todo.categoryId;
+      //return todo.categoryId === null || todo.categoryId === undefined;
+
       // Otherwise, compare the category IDs normally:
-      return todo.categoryId === activeFilterName;
+      return todo.categoryId === activeFilterId;
     });
+
+  // OR ONE-LINER version:
+  // const filteredTodosBis = activeFilterId === "All"
+  //   ? todos
+  //   : todos.filter((todo) => activeFilterId === "none" ? !todo.categoryId : todo.categoryId === activeFilterId);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center p-8">
       <div className="w-full max-w-md mx-auto bg-blue-500 shadow-xl rounded-2xl py-6 px-3 sm:px-6">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-blue-900 flex items-center gap-2">
             <FontAwesomeIcon icon={faFilePen} />
             <span>Tiny FullyLoFi To-Do</span>
           </h1>
-           <div className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-2.5 sm:py-1 rounded-full text-xs font-medium text-slate-500">
+          <div className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-2.5 sm:py-1 rounded-full text-xs font-medium text-slate-500">
             <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-blue-900' : 'bg-pink-500'}`}></span>
             <span className="hidden sm:inline" >{isOnline ? 'Online' : 'Offline'}</span>
           </div>
@@ -205,9 +210,9 @@ export default function TodoListPureLoFi() {
             </option>
 
             {categories.map((cat: Category) => (
-              <option 
-                key={cat.id} 
-                value={cat.id} 
+              <option
+                key={cat.id}
+                value={cat.id}
                 className="bg-white text-slate-900 font-medium py-1"
               >
                 {cat.name}
@@ -220,10 +225,10 @@ export default function TodoListPureLoFi() {
         {/* Filter by category: */}
         <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
           <button
-            onClick={() => setActiveFilterName("All")}
+            onClick={() => setActiveFilterId("All")}
 
             className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
-              ${ activeFilterName === "All"
+              ${activeFilterId === "All"
                 ? "bg-blue-900 text-white font-extrabold"
                 : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-normal"
               }`}
@@ -232,9 +237,9 @@ export default function TodoListPureLoFi() {
           </button>
 
           <button
-            onClick={() => setActiveFilterName("none")}
+            onClick={() => setActiveFilterId("none")}
             className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
-              ${ activeFilterName === "none"
+              ${activeFilterId === "none"
                 ? "bg-blue-900 text-white font-extrabold"
                 : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-normal"
               }`}
@@ -251,9 +256,9 @@ export default function TodoListPureLoFi() {
             return (
               <button
                 key={cat.id}
-                onClick={() => setActiveFilterName(cat.id)}
-                 className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
-                  ${ activeFilterName === cat.id
+                onClick={() => setActiveFilterId(cat.id)}
+                className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
+                  ${activeFilterId === cat.id
                     ? `${styles.activeBg} text-white font-extrabold`
                     : `${styles.text} bg-slate-100 hover:bg-slate-200 font-normal`
                   }`}
@@ -310,9 +315,8 @@ export default function TodoListPureLoFi() {
                     ) : (
                       <span
                         onClick={() => setEditingId(todo.id)}
-                        className={`text-sm cursor-pointer flex-1 ${
-                          todo.done ? "line-through text-slate-400 font-medium" : `${styles.text} font-bold`
-                        }`}
+                        className={`text-sm cursor-pointer flex-1 ${todo.done ? "line-through text-slate-400 font-medium" : `${styles.text} font-bold`
+                          }`}
                       >
                         {todo.title}
                       </span>
