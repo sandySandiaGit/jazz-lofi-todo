@@ -142,12 +142,12 @@ export default function TodoListPureLoFi() {
   const filteredTodos = activeFilterId === "All"
     ? todos
     : todos.filter((todo) => {
-      
+
       // Guard clause / early return for tasks without a category:
       // Using "!todo.categoryId" captures null, undefined, and empty string ("")
       // Equivalent to: todo.categoryId === null || todo.categoryId === undefined || todo.categoryId === ""
       if (activeFilterId === "none") return !todo.categoryId;
-     
+
       // Otherwise, compare the category IDs normally (implicit else):
       return todo.categoryId === activeFilterId;
     });
@@ -156,6 +156,25 @@ export default function TodoListPureLoFi() {
   // const filteredTodosBis = activeFilterId === "All"
   //   ? todos
   //   : todos.filter((todo) => activeFilterId === "none" ? !todo.categoryId : todo.categoryId === activeFilterId);
+
+  // OR with a switch statement:
+  // Useful if we add more special filters later (e.g., "completed", "today", "archived"),
+  // giving each case its own clear logic.
+  // const filteredTodos = (() => {
+  //   switch (activeFilterId) {
+  //     case "All":
+  //       // Displays all todos without filtering:
+  //       return todos;
+
+  //     case "none":
+  //       // Filters todos with no category (falsy categoryId):
+  //       return todos.filter((todo) => !todo.categoryId);
+
+  //     default:
+  //       // Filters todos by their category ID:
+  //       return todos.filter((todo) => todo.categoryId === activeFilterId);
+  //   }
+  // })();
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center p-8">
@@ -226,9 +245,9 @@ export default function TodoListPureLoFi() {
 
         {/* Filter by category: */}
         <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+          
           <button
             onClick={() => setActiveFilterId("All")}
-
             className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
               ${activeFilterId === "All"
                 ? "bg-blue-900 text-white font-extrabold"
@@ -246,8 +265,6 @@ export default function TodoListPureLoFi() {
                 : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-normal"
               }`}
           >
-            {/* None ({todos.filter(todo => todo.categoryId === null || todo.categoryId === undefined).length}) */}
-            {/* Using !todo.categoryId counts all tasks without a category (null or undefined): */}
             None ({todos?.filter(todo => !todo.categoryId).length || 0})
           </button>
 

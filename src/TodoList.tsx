@@ -127,6 +127,30 @@ export default function TodoList() {
     ? todos
     : todos.filter((todo) => activeFilterId === "none" ? !todo.categoryId : todo.categoryId === activeFilterId);
 
+  // OR with a switch case:
+  // in case, later we add other special filters like "completed", "today", "archived"...
+  // ajoutes plus tard d'autres filtres spéciaux (ex: "completed", "today", "archived"), 
+  // car chaque cas aura sa propre ligne claire sans surcharger la boucle .filter().
+
+  // // OR with a switch statement:
+  // // Useful if we add more special filters later (e.g., "completed", "today", "archived"),
+  // // giving each case its own clear logic.
+  // const filteredTodos = (() => {
+  //   switch (activeFilterId) {
+  //     case "All":
+  //       // Displays all todos without filtering:
+  //       return todos;
+
+  //     case "none":
+  //       // Filters todos with no category (falsy categoryId):
+  //       return todos.filter((todo) => !todo.categoryId);
+
+  //     default:
+  //       // Filters todos by their category ID:
+  //       return todos.filter((todo) => todo.categoryId === activeFilterId);
+  //   }
+  // })();
+
   const handleAddTodo = (e: React.BaseSyntheticEvent) => {
 
     e.preventDefault();
@@ -253,6 +277,7 @@ export default function TodoList() {
 
         {/* Filter per category: */}
         <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+          
           <button
             onClick={() => setActiveFilterId("All")}
             className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
@@ -272,8 +297,6 @@ export default function TodoList() {
                 : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-normal"
               }`}
           >
-            {/* None ({todos.filter(todo => todo.categoryId === null || todo.categoryId === undefined).length}) */}
-            {/* Using !todo.categoryId counts all tasks without a category (null or undefined): */}
             None ({todos?.filter(todo => !todo.categoryId).length || 0})
           </button>
 
