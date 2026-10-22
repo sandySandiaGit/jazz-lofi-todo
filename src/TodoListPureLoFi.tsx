@@ -153,7 +153,7 @@ export default function TodoListPureLoFi() {
     });
 
   // OR ONE-LINER version:
-  // const filteredTodosBis = activeFilterId === "All"
+  // const filteredTodos = activeFilterId === "All"
   //   ? todos
   //   : todos.filter((todo) => activeFilterId === "none" ? !todo.categoryId : todo.categoryId === activeFilterId);
 
@@ -220,7 +220,7 @@ export default function TodoListPureLoFi() {
               /* 2. Padding & Layout */
               px-4 py-1.5 pr-10 border border-slate-200 bg-slate-50 shadow-sm
               /* 3. Focus & Transitions */
-              focus:outline-none focus:ring-3 focus:ring-blue-900 focus:border-transparent
+              focus:outline-none focus:ring-3 focus:ring-blue-900 focus:border-transparent truncate
               /* 4. Custom blue SVG chevron (%231e3a8a = blue-900) */
               bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%231e3a8a%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')]
               bg-[length:1.1rem_1.1rem] bg-[right_0.75rem_center] bg-no-repeat
@@ -244,11 +244,11 @@ export default function TodoListPureLoFi() {
         </form>
 
         {/* Filter by category: */}
-        <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
-          
+        <div className="flex flex-wrap gap-2 mb-4">
+
           <button
             onClick={() => setActiveFilterId("All")}
-            className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
+            className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer sm:px-3 sm:py-1 sm:font-extrabold 
               ${activeFilterId === "All"
                 ? "bg-blue-900 text-white font-extrabold"
                 : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-normal"
@@ -259,7 +259,7 @@ export default function TodoListPureLoFi() {
 
           <button
             onClick={() => setActiveFilterId("none")}
-            className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
+            className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer sm:px-3 sm:py-1 sm:font-extrabold 
               ${activeFilterId === "none"
                 ? "bg-blue-900 text-white font-extrabold"
                 : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-normal"
@@ -276,7 +276,7 @@ export default function TodoListPureLoFi() {
               <button
                 key={cat.id}
                 onClick={() => setActiveFilterId(cat.id)}
-                className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
+                className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer sm:px-3 sm:py-1 sm:font-extrabold 
                   ${activeFilterId === cat.id
                     ? `${styles.activeBg} text-white font-extrabold`
                     : `${styles.text} bg-slate-100 hover:bg-slate-200 font-normal`
@@ -303,11 +303,11 @@ export default function TodoListPureLoFi() {
 
               return (
                 <li key={todo.id} className="flex items-center justify-between p-3 text-blue-900 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-100 transition-all">
-                  <div className="flex items-center gap-3 flex-1">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
                     <button
                       type="button"
                       onClick={() => toggleTodo(todo.id, todo.done)}
-                      className={`text-lg cursor-pointer ${styles.text}`}
+                      className={`text-lg cursor-pointer shrink-0 ${styles.text}`}
                     >
                       <FontAwesomeIcon icon={todo.done ? faCircleCheck : faCircleDot} />
                     </button>
@@ -329,20 +329,19 @@ export default function TodoListPureLoFi() {
                           }
                           if (e.key === "Escape") setEditingId(null);
                         }}
-                        className={`flex-1 bg-white px-2 py-0.5 border ${styles.border} rounded text-sm outline-none`}
+                        className={`flex-1 min-w-0 bg-white px-2 py-0.5 border ${styles.border} rounded text-sm outline-none`}
                       />
                     ) : (
                       <span
                         onClick={() => setEditingId(todo.id)}
-                        className={`text-sm cursor-pointer flex-1 ${todo.done ? "line-through text-slate-400 font-medium" : `${styles.text} font-bold`
+                        className={`text-sm cursor-pointer flex-1 truncate ${todo.done ? "line-through text-slate-400 font-medium" : `\${styles.text} font-bold`
                           }`}
                       >
                         {todo.title}
                       </span>
                     )}
                   </div>
-
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     {attachedCategory && (
                       <span className={`text-sm font-semibold ${styles.lightBg}`}>
                         <FontAwesomeIcon icon={attachedIcon} />

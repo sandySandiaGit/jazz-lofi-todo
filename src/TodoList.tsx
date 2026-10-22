@@ -238,7 +238,7 @@ export default function TodoList() {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="w-full font-bold flex items-center justify-between px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-blue-900 outline-none text-left cursor-pointer"
             >
-              <span>{selectedCategoryName || "No category"}</span>
+              <span className="truncate flex-1">{selectedCategoryName || "No category"}</span>
               <FontAwesomeIcon icon={faChevronDown} className="text-blue-900 text-[10px]" />
             </button>
 
@@ -276,11 +276,11 @@ export default function TodoList() {
         </form>
 
         {/* Filter per category: */}
-        <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
-          
+        <div className="flex flex-wrap gap-2 mb-4">
+
           <button
             onClick={() => setActiveFilterId("All")}
-            className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
+            className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer sm:px-3 sm:py-1 sm:font-extrabold 
               ${activeFilterId === "All"
                 ? "bg-blue-900 text-white font-extrabold"
                 : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-normal"
@@ -291,7 +291,7 @@ export default function TodoList() {
 
           <button
             onClick={() => setActiveFilterId("none")}
-            className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
+            className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer sm:px-3 sm:py-1 sm:font-extrabold 
               ${activeFilterId === "none"
                 ? "bg-blue-900 text-white font-extrabold"
                 : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-normal"
@@ -308,7 +308,7 @@ export default function TodoList() {
               <button
                 key={cat.id}
                 onClick={() => setActiveFilterId(cat.id)}
-                className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer whitespace-nowrap sm:px-3 sm:py-1 sm:font-extrabold 
+                className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer sm:px-3 sm:py-1 sm:font-extrabold 
                   ${activeFilterId === cat.id
                     ? `${styles.activeBg} text-white font-extrabold`
                     : `${styles.text} bg-slate-100 hover:bg-slate-200 font-normal`
@@ -335,11 +335,11 @@ export default function TodoList() {
 
               return (
                 <li key={todo.id} className="flex items-center justify-between p-3 text-blue-900 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-100 transition-all">
-                  <div className="flex items-center gap-3 flex-1">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
                     <button
                       type="button"
                       onClick={() => toggleTodo(todo.id, todo.done)}
-                      className={`text-lg cursor-pointer ${styles.text}`}
+                      className={`text-lg cursor-pointer shrink-0 ${styles.text}`}
                     >
                       <FontAwesomeIcon icon={todo.done ? faCircleCheck : faCircleDot} />
                     </button>
@@ -355,20 +355,19 @@ export default function TodoList() {
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === "Escape") setEditingId(null);
                         }}
-                        className={`flex-1 bg-white px-2 py-0.5 border ${styles.border} rounded text-sm outline-none`}
+                        className={`flex-1 min-w-0 bg-white px-2 py-0.5 border ${styles.border} rounded text-sm outline-none`}
                       />
                     ) : (
                       <span
                         onClick={() => setEditingId(todo.id)}
-                        className={`text-sm cursor-pointer flex-1 ${todo.done ? "line-through text-slate-400 font-medium" : `${styles.text} font-bold`
+                        className={`text-sm cursor-pointer flex-1 truncate ${todo.done ? "line-through text-slate-400 font-medium" : `\${styles.text} font-bold`
                           }`}
                       >
                         {todo.title}
                       </span>
                     )}
                   </div>
-
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     {attachedCategory && (
                       <span className={`text-sm font-semibold ${styles.lightBg}`}>
                         <FontAwesomeIcon icon={attachedIcon} />

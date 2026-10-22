@@ -1,4 +1,4 @@
-const CACHE_NAME = "jazz-pwa-v24";
+const CACHE_NAME = "jazz-pwa-v25";
 const STATIC_SHELL = ["/", "/index.html"];
 
 // 1. INSTALL : Precache uniquement le shell de l'application (sans scan récursif fragile):
