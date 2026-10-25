@@ -6,7 +6,8 @@ import type { AccountHandle } from "jazz-tools";
 import { JazzProvider } from "jazz-tools/react";
 import { useState } from "react";
 import TodoList from "./TodoList.tsx";
-import TodoListPureLoFi from "./TodoListPureLoFi.tsx";
+import TodoListPureLoFi from "./TodoListPureLofi.tsx";
+
 
 // ARCHITECTURAL NOTE:
 // In earlier Jazz APIs, backend initialization relied on raw secrets or internal types

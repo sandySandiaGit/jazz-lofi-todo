@@ -151,20 +151,24 @@ export default function TodoList() {
   //   }
   // })();
 
-  const handleAddTodo = (e: React.BaseSyntheticEvent) => {
+  const handleAddTodo = (e: React.SubmitEvent<HTMLFormElement>) => {
 
     e.preventDefault();
 
-    if (!newTodoTitle.trim()) return;
+    // 1. Clean the string once and store it:
+    const title = newTodoTitle.trim()
 
-    // 1. Write directly to Jazz local database:
+    // 2. Guard clause: block execution if the trimmed string is empty (""):
+    if (!title) return
+
+    // 3. Persist the clean data straight to Jazz:
     db.insert(app.todos, {
-      title: newTodoTitle,
+      title, // Uses our pre-trimmed variable!
       done: false,
-      categoryId: selectedCategoryId,
+      categoryId: selectedCategoryId || undefined,
     });
 
-    // 2. Manual cleanup of the intermediate states:
+    // 4. Manual cleanup of the intermediate states:
     setNewTodoTitle("");
     setSelectedCategoryId(undefined);
   };
@@ -206,6 +210,7 @@ export default function TodoList() {
           <div className="flex gap-2">
             <input
               type="text"
+              required pattern=".*\S.*"
               maxLength={30}
               value={newTodoTitle}
               // Re-renders the component on every keypress:

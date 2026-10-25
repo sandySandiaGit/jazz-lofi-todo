@@ -1,0 +1,413 @@
+// Optimized implementation using the native React 19 'action' form attribute.
+// Eliminates intermediate component state and manual DOM cleanups.
+// Reference: "React 19 Form Actions Explained | useActionState Hook" by Frontend Devs
+// Watch from 06:25 to 11:47: https://www.youtube.com/watch?v=NafMDSppo1M&t=402s
+
+import { useState, useEffect } from "react";
+import { useAll, useDb } from "jazz-tools/react";
+import { app, type Todo, type Category } from "./schema.ts";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { CATEGORY_ICONS, CATEGORY_COLORS } from "./constants";
+import { faFilePen, faTrashCan, faPlus, faBriefcase, faCircleCheck, faCircleDot } from "@fortawesome/free-solid-svg-icons";
+
+/**
+ * APPROACH 2: Pure Local-First Component (Uncontrolled / Native HTML + React 19 Form Actions)
+ * 
+ * ADVANTAGES:
+ * - NO useState declarations: The browser DOM manages input text states natively.
+ * - ZERO unnecessary re-renders while typing: Keypress events do NOT trigger React renders.
+ * - Native FormData object is implicitly passed straight to the action function handler.
+ * - NO 'e.preventDefault()' required: React 19 automatically intercepts native submission.
+ * - NO manual form resets: Form Actions auto-reset uncontrolled fields on completion.
+ */
+
+export default function TodoListPureLoFi() {
+
+  const db = useDb();
+
+  // Directly subscribe to Jazz reactive data stream (Single Source of Truth):
+  const { data: todos = [], isLoading: isTodosLoading } = useAll(app?.todos);
+  const { data: categories = [], isLoading: isCategoriesLoading } = useAll(app?.categories);
+
+  // Purely ephemeral UI state:
+  const [editingId, setEditingId] = useState<string | null>(null);
+  // Initialized with "All" so all todos are displayed on mount:
+  const [activeFilterId, setActiveFilterId] = useState<string>("All");
+  const [todoToDelete, setTodoToDelete] = useState<string | null>(null);
+  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
+
+  const checkRealConnection = async (timeout = 3000): Promise<boolean> => {
+
+    if (!navigator.onLine) {
+      return false;
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+      await fetch("https://httpbin.org", {
+        method: "HEAD",
+        cache: "no-store",
+        mode: "no-cors",
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      console.log("We're really online !!!");
+
+      return true;
+
+    } catch (error: any) {
+
+      if (error.name === 'AbortError') {
+        console.warn("Lie-fi detected (timeout) !");
+      } else {
+        console.warn("Offline or network error !");
+      }
+      return false;
+    }
+  };
+
+  // Network connection test:
+  useEffect(() => {
+
+    // Run the check immediately on mount:
+    const triggerCheck = async () => {
+      const result = await checkRealConnection();
+      setIsOnline(result);
+    };
+
+    triggerCheck();
+
+    // Re-verify connection health every 10 seconds automatically:
+    const intervalId = setInterval(triggerCheck, 10000);
+
+    // Also run immediately if the browser fires a native state switch event:
+    const handleOnlineEvent = () => triggerCheck();
+    const handleOfflineEvent = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnlineEvent);
+    window.addEventListener("offline", handleOfflineEvent);
+
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener("online", handleOnlineEvent);
+      window.removeEventListener("offline", handleOfflineEvent);
+    };
+  }, []);
+
+  if (!app || !app.todos || !app.categories) {
+    return <p className="text-center text-slate-400 py-8 animate-pulse">Initializing Jazz schema...</p>;
+  }
+
+  if (isTodosLoading || isCategoriesLoading) {
+    return <p className="text-center text-slate-400 py-8 animate-pulse">Loading and syncing...</p>;
+  }
+
+  // --- CREATE (Zero useState needed for form handling !!) ---
+  /**
+   * LEARNING NOTE - REACT 19 FORM ACTIONS:
+   * The handler function DIRECTLY receives the native FormData object as its first argument!
+   * React 19 intercepts the native submit event under the hood, meaning 'e.preventDefault()' is fully obsolete.
+   * Furthermore, manual form resets via 'e.currentTarget.reset()' are no longer required.
+   * When a function is bound to a form's 'action' attribute, React handles resetting 
+   * uncontrolled inputs automatically upon successful execution!
+   */
+
+  const handleAddTodo = (formData: FormData) => {
+
+    // 1. Extract raw entries using native Browser API (no React state needed):
+    const rawTitle = formData.get("todoTitle") as string; // Matches input name attribute
+    // Shifting the fallback here allows the use of shorthand syntax below!
+    const categoryId = (formData.get("todoCategory") as string) || undefined; // Matches select name attribute
+
+    // 2. Clean and evaluate using the exact field name (for shorthand use in db.insert()):
+    const title = rawTitle.trim();
+    if (!title) return; // Guard clause blocks execution if string is empty
+
+    // 3. Persist directly to local database (syncs to memory & disk instantly):
+    db.insert(app.todos, {
+      title,
+      done: false,
+      categoryId,
+    });
+  };
+
+  const toggleTodo = (id: string, currentStatus: boolean) => {
+    db.update(app.todos, id, { done: !currentStatus });
+  };
+
+  const handleLiveEdit = (id: string, newText: string) => {
+    db.update(app.todos, id, { title: newText });
+  };
+
+  const confirmDeleteTodo = () => {
+    if (todoToDelete) {
+      db.delete(app.todos, todoToDelete);
+      setTodoToDelete(null);
+    }
+  };
+
+  const filteredTodos = activeFilterId === "All"
+    ? todos
+    : todos.filter((todo) => {
+
+      // LEARNING NOTE:
+      // Guard clause / early return for tasks without a category:
+      // Using "!todo.categoryId" captures null, undefined, and empty string ("")
+      // Equivalent to: todo.categoryId === null || todo.categoryId === undefined || todo.categoryId === ""
+      if (activeFilterId === "none") return !todo.categoryId;
+
+      // Otherwise, compare the category IDs normally (implicit else):
+      return todo.categoryId === activeFilterId;
+    });
+
+  // OR ONE-LINER version:
+  // const filteredTodos = activeFilterId === "All"
+  //   ? todos
+  //   : todos.filter((todo) => activeFilterId === "none" ? !todo.categoryId : todo.categoryId === activeFilterId);
+
+  // OR with a switch statement:
+  // Useful if we add more special filters later (e.g., "completed", "today", "archived"),
+  // giving each case its own clear logic.
+  // const filteredTodos = (() => {
+  //   switch (activeFilterId) {
+  //     case "All":
+  //       // Displays all todos without filtering:
+  //       return todos;
+
+  //     case "none":
+  //       // Filters todos with no category (falsy categoryId):
+  //       return todos.filter((todo) => !todo.categoryId);
+
+  //     default:
+  //       // Filters todos by their category ID:
+  //       return todos.filter((todo) => todo.categoryId === activeFilterId);
+  //   }
+  // })();
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center p-8">
+      <div className="w-full max-w-md mx-auto bg-blue-500 shadow-xl rounded-2xl py-6 px-3 sm:px-6">
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-xl font-bold text-blue-900 flex items-center gap-2">
+            <FontAwesomeIcon icon={faFilePen} />
+            <span>Tiny FullyLoFi To-Do</span>
+          </h1>
+          <div className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-2.5 sm:py-1 rounded-full text-xs font-medium text-slate-500">
+            <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-blue-900' : 'bg-pink-500'}`}></span>
+            <span className="hidden sm:inline" >{isOnline ? 'Online' : 'Offline'}</span>
+          </div>
+        </div>
+
+        {/* Uncontrolled Form (Native HTML + React 19 Engine): */}
+        {/* Binding our handler directly to 'action' instead of using an 'onSubmit' listener: */}
+        <form action={handleAddTodo} className="flex flex-col mb-6 space-y-2.5">
+          <div className="flex gap-2">
+            <input
+              name="todoTitle" // Identified natively by name attribute
+              type="text"
+              maxLength={30}
+              placeholder="Add a collaborative task..."
+              required pattern=".*\S.*"
+              className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:border-blue-900 text-sm text-blue-900"
+            />
+            <button
+              type="submit"
+              className="flex items-center justify-center gap-1 bg-blue-900 font-extrabold text-white transition-colors hover:bg-pink-600 
+              h-8 w-8 rounded-full text-xs sm:h-auto sm:w-auto sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm cursor-pointer"
+            >
+              <FontAwesomeIcon icon={faPlus} />
+            </button>
+          </div>
+
+          <select
+            name="todoCategory" // Identified natively by name attribute
+            className="
+              /* 1. Base & Typography */
+              w-full appearance-none cursor-pointer rounded-xl font-bold text-xs text-blue-900
+              /* 2. Padding & Layout */
+              px-4 py-1.5 pr-10 border border-slate-200 bg-slate-50 shadow-sm
+              /* 3. Focus & Transitions */
+              focus:outline-none focus:ring-3 focus:ring-blue-900 focus:border-transparent truncate
+              /* 4. Custom blue SVG chevron (%231e3a8a = blue-900) */
+              bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%231e3a8a%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')]
+              bg-[length:1.1rem_1.1rem] bg-[right_0.75rem_center] bg-no-repeat
+            "
+          >
+            <option value="" className="bg-white text-slate-400 font-normal">
+              No category
+            </option>
+
+            {categories.map((cat: Category) => (
+              <option
+                key={cat.id}
+                value={cat.id}
+                className="bg-white text-slate-900 font-medium py-1"
+              >
+                {cat.name}
+              </option>
+            ))}
+          </select>
+
+        </form>
+
+        {/* Filter by category: */}
+        <div className="flex flex-wrap gap-2 mb-4">
+
+          <button
+            onClick={() => setActiveFilterId("All")}
+            className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer sm:px-3 sm:py-1 sm:font-extrabold 
+              ${activeFilterId === "All"
+                ? "bg-blue-900 text-white font-extrabold"
+                : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-normal"
+              }`}
+          >
+            All ({todos.length})
+          </button>
+
+          <button
+            onClick={() => setActiveFilterId("none")}
+            className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer sm:px-3 sm:py-1 sm:font-extrabold 
+              ${activeFilterId === "none"
+                ? "bg-blue-900 text-white font-extrabold"
+                : "bg-slate-100 text-blue-900 hover:bg-slate-200 font-normal"
+              }`}
+          >
+            None ({todos?.filter(todo => !todo.categoryId).length || 0})
+          </button>
+
+          {categories.map((cat: Category) => {
+            const categoryIcon = CATEGORY_ICONS[cat.iconKey || ""] || faBriefcase;
+            const styles = CATEGORY_COLORS[cat.color || "marine"] || CATEGORY_COLORS.marine;
+
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setActiveFilterId(cat.id)}
+                className={`rounded-full px-2 py-1 text-xs transition-colors cursor-pointer sm:px-3 sm:py-1 sm:font-extrabold 
+                  ${activeFilterId === cat.id
+                    ? `${styles.activeBg} text-white font-extrabold`
+                    : `${styles.text} bg-slate-100 hover:bg-slate-200 font-normal`
+                  }`}
+              >
+                <FontAwesomeIcon icon={categoryIcon} className="mr-1" />
+                {cat.name} ({todos.filter((todo) => todo.categoryId === cat.id).length})
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Todos List: */}
+        {filteredTodos.length === 0 ? (
+          <p className="text-center text-sm text-slate-400 py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+            No tasks found.
+          </p>
+        ) : (
+          <ul className="space-y-3">
+            {filteredTodos.map((todo: Todo) => {
+              const attachedCategory = categories.find((c: Category) => c.id === todo.categoryId);
+              const attachedIcon = CATEGORY_ICONS[attachedCategory?.iconKey || ""] || faBriefcase;
+              const styles = CATEGORY_COLORS[attachedCategory?.color || "marine"] || CATEGORY_COLORS.marine;
+
+              return (
+                <li key={todo.id} className="flex items-center justify-between p-3 text-blue-900 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-100 transition-all">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <button
+                      type="button"
+                      onClick={() => toggleTodo(todo.id, todo.done)}
+                      className={`text-lg cursor-pointer shrink-0 ${styles.text}`}
+                    >
+                      <FontAwesomeIcon icon={todo.done ? faCircleCheck : faCircleDot} />
+                    </button>
+
+                    {editingId === todo.id ? (
+                      <input
+                        type="text"
+                        defaultValue={todo.title}
+                        maxLength={30}
+                        onBlur={(e) => {
+                          handleLiveEdit(todo.id, e.target.value);
+                          setEditingId(null);
+                        }}
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleLiveEdit(todo.id, e.currentTarget.value);
+                            setEditingId(null);
+                          }
+                          if (e.key === "Escape") setEditingId(null);
+                        }}
+                        className={`flex-1 min-w-0 bg-white px-2 py-0.5 border ${styles.border} rounded text-sm outline-none`}
+                      />
+                    ) : (
+                      <span
+                        onClick={() => setEditingId(todo.id)}
+                        className={`text-sm cursor-pointer flex-1 truncate ${todo.done ? "line-through text-slate-400 font-medium" : `\${styles.text} font-bold`
+                          }`}
+                      >
+                        {todo.title}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {attachedCategory && (
+                      <span className={`text-sm font-semibold ${styles.lightBg}`}>
+                        <FontAwesomeIcon icon={attachedIcon} />
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setTodoToDelete(todo.id)}
+                      className="text-sm p-1 text-slate-400 hover:text-pink-500 cursor-pointer"
+                    >
+                      <FontAwesomeIcon icon={faTrashCan} />
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {/* Delete Modal: */}
+        {todoToDelete !== null && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm" onClick={() => setTodoToDelete(null)} />
+            <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-xl border border-slate-100 p-5 z-10">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center text-pink-500 text-sm">
+                  <FontAwesomeIcon icon={faTrashCan} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-pink-500">Delete this task?</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">This action cannot be undone.</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-end gap-2 mt-5">
+                <button
+                  type="button"
+                  onClick={() => setTodoToDelete(null)}
+                  className="bg-slate-100 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmDeleteTodo}
+                  className="px-3 py-1.5 bg-pink-500 hover:bg-pink-600 text-white rounded-xl text-xs font-bold shadow-sm cursor-pointer"
+                >
+                  Delete Task
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

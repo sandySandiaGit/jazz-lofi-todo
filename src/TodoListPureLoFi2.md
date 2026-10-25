@@ -1,3 +1,9 @@
+```tsx
+// Traditional use of FormData without the new React 19 'action' form attribute.
+// To see the React 19 upgraded alternative in 'action', check out: TodoListPureLoFi.tsx ;)
+// Reference: "React 19 Form Actions Explained | useActionState Hook" by Frontend Devs
+// Watch from 06:25 to 11:47: https://www.youtube.com/watch?v=NafMDSppo1M&t=402s
+
 import { useState, useEffect } from "react";
 import { useAll, useDb } from "jazz-tools/react";
 import { app, type Todo, type Category } from "./schema.ts";
@@ -13,7 +19,6 @@ import { faFilePen, faTrashCan, faPlus, faBriefcase, faCircleCheck, faCircleDot 
  * - ZERO unnecessary re-renders while typing: Typing does NOT trigger React renders.
  * - Native FormData API extracts input value cleanly on form submission.
  * - Native e.currentTarget.reset() clears the form instantly.
- * - Direct Reactive Persistence: Jazz useAll() listens directly to IndexedDB.
  */
 
 export default function TodoListPureLoFi() {
@@ -101,15 +106,15 @@ export default function TodoListPureLoFi() {
     return <p className="text-center text-slate-400 py-8 animate-pulse">Loading and syncing...</p>;
   }
 
-  // --- CRUD ACTIONS (Zero useState needed for the form !!) ---
-  const handleAddTodo = (e: React.BaseSyntheticEvent) => {
+  // --- CREATE (Zero useState needed for form handling !!) ---
+  const handleAddTodo = (e: React.SubmitEvent<HTMLFormElement>) => {
 
     e.preventDefault();
 
     // 1. Extract values using native Browser API (no React state needed):
     const formData = new FormData(e.currentTarget);
-    const title = formData.get("todoTitle")?.toString().trim();
-    const categoryId = formData.get("todoCategory")?.toString();
+    const title = formData.get("todoTitle")?.toString().trim(); // Matches input name attribute
+    const categoryId = formData.get("todoCategory")?.toString() || undefined; // Matches select name attribute
 
     if (!title) return;
 
@@ -117,7 +122,7 @@ export default function TodoListPureLoFi() {
     db.insert(app.todos, {
       title,
       done: false,
-      categoryId: categoryId || undefined,
+      categoryId,
     });
 
     // 3. Reset form input and select using native HTML DOM method:
@@ -143,6 +148,7 @@ export default function TodoListPureLoFi() {
     ? todos
     : todos.filter((todo) => {
 
+      // LEARNING NOTE
       // Guard clause / early return for tasks without a category:
       // Using "!todo.categoryId" captures null, undefined, and empty string ("")
       // Equivalent to: todo.categoryId === null || todo.categoryId === undefined || todo.categoryId === ""
@@ -200,7 +206,7 @@ export default function TodoListPureLoFi() {
               type="text"
               maxLength={30}
               placeholder="Add a collaborative task..."
-              required
+              required pattern=".*\S.*"
               className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:border-blue-900 text-sm text-blue-900"
             />
             <button
@@ -398,3 +404,4 @@ export default function TodoListPureLoFi() {
     </div>
   );
 }
+```
