@@ -211,7 +211,7 @@ By adopting a **Pure Local-First** mindset, the local database (IndexedDB via Ja
 ```tsx
 const [newTodoTitle, setNewTodoTitle] = useState("");
 
-const handleAddTodo = (e: React.BaseSyntheticEvent) => {
+const handleAddTodo = (e: React.SubmitEvent<HTMLFormElement>) => {
 
   e.preventDefault();
 
@@ -232,7 +232,7 @@ return (
 #### 2. After: Pure Local-First Pattern (Native HTML + Jazz) - Zero useState
 ##### A. Intermediate: Uncontrolled Pattern (Traditional FormData) => `TodoListPureLoFi2.md`
 ```tsx
-const handleAddTodo = (e: React.BaseSyntheticEvent) => {
+const handleAddTodo = (e: React.SubmitEvent<HTMLFormElement>) => {
 
   e.preventDefault();
 
