@@ -238,7 +238,7 @@ const handleAddTodo = (e: React.BaseSyntheticEvent) => {
 
   // Extract values using native Browser API (no React state needed):
   const formData = new FormData(e.currentTarget);
-  const title = formData.get("todoTitle")?.toString(); // from input name
+  const title = formData.get("todoTitle")?.toString(); // Matches input name attribute
   
   if (title) {
     db.insert(app.todos, { title });
@@ -260,7 +260,7 @@ return (
 const handleAddTodo = async (formData: FormData) => {
 
   // Extract values natively straight from the FormData argument:
-  const title = formData.get("todoTitle") as string; // from input name
+  const title = formData.get("todoTitle") as string; // Matches input name attribute
   
   if (title) {
     db.insert(app.todos, { title });
