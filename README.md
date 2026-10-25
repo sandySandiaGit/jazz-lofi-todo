@@ -215,13 +215,13 @@ const handleAddTodo = (e: React.BaseSyntheticEvent) => {
 
   e.preventDefault();
 
-  db.insert(app.todos, { title: newTodoTitle });
+  db.insert(app.todos, { title: newTodoTitle }); // Simplified !
   setNewTodoTitle(""); // Manual state cleanup
 };
 
 return (
   <form onSubmit={handleAddTodo}>
-    <input 
+    <input required
       value={newTodoTitle} 
       onChange={(e) => setNewTodoTitle(e.target.value)} 
     />
@@ -238,17 +238,15 @@ const handleAddTodo = (e: React.BaseSyntheticEvent) => {
 
   // Extract values using native Browser API (no React state needed):
   const formData = new FormData(e.currentTarget);
-  const title = formData.get("todoTitle")?.toString(); // Matches input name attribute
+  const title = formData.get("todoTitle") as string; // Matches input name attribute
   
-  if (title) {
-    db.insert(app.todos, { title });
-    e.currentTarget.reset(); // Native HTML form reset
-  }
+  db.insert(app.todos, { title }); // Simplified !
+  e.currentTarget.reset(); // Native HTML form reset
 };
 
 return (
   <form onSubmit={handleAddTodo}>
-    <input name="todoTitle" />
+    <input required name="todoTitle" />
   </form>
 );
 ```
@@ -257,20 +255,18 @@ return (
 ```tsx
 // React 19 automatically handles event interception and resets form fields natively
 
-const handleAddTodo = async (formData: FormData) => {
+const handleAddTodo = (formData: FormData) => {
 
   // Extract values natively straight from the FormData argument:
   const title = formData.get("todoTitle") as string; // Matches input name attribute
-  
-  if (title) {
-    db.insert(app.todos, { title });
-  }
+
+  db.insert(app.todos, { title }); // Simplified !
 };
 
 return (
-  /* Pass our async handler straight to the new native 'action' attribute: */
+  // Pass our handler straight to the new native 'action' attribute:
   <form action={handleAddTodo}>
-    <input name="todoTitle" />
+    <input required name="todoTitle" />
   </form>
 );
 ```
