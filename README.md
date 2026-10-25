@@ -162,6 +162,7 @@ Traditionally, developers declare a `useState` hook for every single input field
 
 By adopting a **Pure Local-First** mindset, the local database (IndexedDB via Jazz) acts as the **single reactive source of truth**. We eliminate redundant intermediate states and let native HTML elements handle transient user inputs.
 
+
 <p align="center">
   <img src="https://github.com/user-attachments/assets/7e09b1d2-04bc-476e-ba18-29fa5bbdf11d" style="width: 500px; height: auto; object-fit: contain;" alt="React Miami interview with Anselm Eickhoff." />
 </p>
@@ -170,19 +171,22 @@ By adopting a **Pure Local-First** mindset, the local database (IndexedDB via Ja
 
 ### What Concretely Changes in the Code?
 
-| Concept | Traditional React Pattern | Pure Local-First Pattern (Jazz) |
-| :--- | :--- | :--- |
-| **Form Inputs** | Controlled inputs via `useState` (updated on every keystroke via `onChange`) | Native HTML form + `FormData` extracted on submission |
-| **Business Data** | Duplicated between `useState` and the database | Stored and observed directly in Jazz via `useAll()` |
-| **React State (`useState`)** | Overused for everything (inputs, data, filters) | **Reserved strictly for ephemeral UI state** (e.g., `editingId`, open modals) |
-| **React Re-renders** | Triggered on every single keypress | Triggered only when the local database mutates |
+| Concept | Traditional React Pattern | Pure LoFi Pattern (traditional FormData) | Pure LoFi Pattern (FormData + React 19 form action attribute) |
+| :--- | :--- | :--- | :--- |
+| **Form Inputs** | Controlled inputs via `useState` (updated on every keystroke via `onChange`) | Native HTML form + `FormData` extracted manually on submission | Native HTML form + `FormData` implicitly handled by React 19 |
+| **Business Data** | Duplicated between `useState` and the database | Stored and observed directly in Jazz via `useAll()` | Stored and observed directly in Jazz via `useAll()` |
+| **React State (`useState`)** | Overused for everything (inputs, data, filters) | **Reserved strictly for ephemeral UI state** (e.g., `editingId`, open modals) | **Reserved strictly for ephemeral UI state** (e.g., `editingId`, open modals) |
+| **Form Resetting** | Manual state clear handlers (`setTitle("")`) | Imperative DOM reset (`e.currentTarget.reset()`) | **Automated** by the framework once the async Action finishes |
+| **Event Trapping** | Manual intercept via `e.preventDefault()` | Manual intercept via `e.preventDefault()` | **No longer required**; natively managed by the `action` attribute |
+| **React Re-renders** | Triggered on every single keypress | Triggered only when the local database mutates | Triggered only when the local database mutates |
+
 
 > 💡 **Try it Live in the App:**
-> An interactive toggle button is included in `App.tsx`. You can switch between the **Standard React** (`<TodoList />`) and **Pure Local-First** (`<TodoListPureLoFi />`) implementations directly in your browser without altering any code!
+> An interactive toggle button is included in `App.tsx`. You can switch between the **Standard React** (`<TodoList />`) and **Pure Local-First with FormData + React 19 form action attribute** (`<TodoListPureLoFi />`) implementations directly in your browser without altering any code!
 >
 > Open your browser console in Standard React mode to see styled logs tracking **re-renders on every single keypress**.
 >
-> While **useRef** could bypass these re-renders, it introduces heavy boilerplate and imperative DOM manipulation, making **native FormData** the **cleaner Local-First approach** !
+> While **useRef** could bypass these re-renders, it introduces heavy boilerplate and imperative DOM manipulation, making **FormData + React 19 form action attribute** the **cleaner Local-First approach** !
 
 <div align="center">
 <table border="0" style="width: 100%; border-collapse: collapse;">
@@ -201,9 +205,9 @@ By adopting a **Pure Local-First** mindset, the local database (IndexedDB via Ja
 
 ---
 
-### Code Comparison: Before vs. After
+### Code Comparison: Before vs. After (The Three-Way Evolution)
+#### 1. Before: Controlled React Pattern (Heavy Intermediate State) => TodoList.tsx
 
-#### Before: Controlled React Pattern (Intermediate State) => `TodoList.tsx`
 ```tsx
 const [newTodoTitle, setNewTodoTitle] = useState("");
 
@@ -225,7 +229,8 @@ return (
 );
 ```
 
-#### After: Pure Local-First Pattern (Native HTML + Jazz) - Zero useState => `TodoListPureLoFi.tsx`
+#### 2. After: Pure Local-First Pattern (Native HTML + Jazz) - Zero useState
+##### A. Intermediate: Uncontrolled Pattern (Traditional FormData) => `TodoListPureLoFi2.md`
 ```tsx
 const handleAddTodo = (e: React.BaseSyntheticEvent) => {
 
@@ -233,7 +238,7 @@ const handleAddTodo = (e: React.BaseSyntheticEvent) => {
 
   // Extract values using native Browser API (no React state needed):
   const formData = new FormData(e.currentTarget);
-  const title = formData.get("todoTitle")?.toString();
+  const title = formData.get("todoTitle")?.toString(); // from input name
   
   if (title) {
     db.insert(app.todos, { title });
@@ -248,12 +253,32 @@ return (
 );
 ```
 
+##### B. Upgraded React 19 Form Action Pattern (Zero Boilerplate) => `TodoListPureLoFi.tsx`
+```tsx
+// React 19 automatically handles event interception and resets form fields natively
+
+const handleAddTodo = async (formData: FormData) => {
+
+  // Extract values natively straight from the FormData argument:
+  const title = formData.get("todoTitle") as string; // from input name
+  
+  if (title) {
+    db.insert(app.todos, { title });
+  }
+};
+
+return (
+  /* Pass our async handler straight to the new native 'action' attribute: */
+  <form action={handleAddTodo}>
+    <input name="todoTitle" />
+  </form>
+);
+```
 ---
 
 ### Key Benefits
 
-**1. Zero Boilerplate**: eliminates repetitive useState declarations and onChange handlers for form inputs.
+**1. Zero Boilerplate**: Completely eliminates repetitive `useState` declarations, `onChange` text listeners, manual event preventions, and imperative form cleanups.
 
 **2. Optimized Performance**: prevents unnecessary React re-renders on every single keystroke.
 
-**3. Direct Reactivity & Persistence**: writes directly to local storage (IndexedDB) with zero-latency UI updates via useAll().
