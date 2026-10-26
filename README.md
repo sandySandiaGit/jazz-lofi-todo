@@ -209,21 +209,21 @@ By adopting a **Pure Local-First** mindset, the local database (IndexedDB via Ja
 #### 1. Before: Controlled React Pattern (Heavy Intermediate State) => TodoList.tsx
 
 ```tsx
-const [newTodoTitle, setNewTodoTitle] = useState("");
+const [title, setTitle] = useState("");
 
 const handleAddTodo = (e: React.SubmitEvent<HTMLFormElement>) => {
 
   e.preventDefault();
 
-  db.insert(app.todos, { title: newTodoTitle }); // Simplified !
-  setNewTodoTitle(""); // Manual state cleanup
+  db.insert(app.todos, { title }); // Simplified !
+  setTitle(""); // Manual state cleanup
 };
 
 return (
   <form onSubmit={handleAddTodo}>
     <input required
-      value={newTodoTitle} 
-      onChange={(e) => setNewTodoTitle(e.target.value)} 
+      value={title} 
+      onChange={(e) => setTitle(e.target.value)} 
     />
   </form>
 );
@@ -238,7 +238,7 @@ const handleAddTodo = (e: React.SubmitEvent<HTMLFormElement>) => {
 
   // Extract values using native Browser API (no React state needed):
   const formData = new FormData(e.currentTarget);
-  const title = formData.get("todoTitle") as string; // Matches input name attribute
+  const title = formData.get("title") as string; // Matches input name attribute
   
   db.insert(app.todos, { title }); // Simplified !
   e.currentTarget.reset(); // Native HTML form reset
@@ -246,7 +246,7 @@ const handleAddTodo = (e: React.SubmitEvent<HTMLFormElement>) => {
 
 return (
   <form onSubmit={handleAddTodo}>
-    <input required name="todoTitle" />
+    <input required name="title" />
   </form>
 );
 ```
@@ -258,7 +258,7 @@ return (
 const handleAddTodo = (formData: FormData) => {
 
   // Extract values natively straight from the FormData argument:
-  const title = formData.get("todoTitle") as string; // Matches input name attribute
+  const title = formData.get("title") as string; // Matches input name attribute
 
   db.insert(app.todos, { title }); // Simplified !
 };
@@ -266,7 +266,7 @@ const handleAddTodo = (formData: FormData) => {
 return (
   // Pass our handler straight to the new native 'action' attribute:
   <form action={handleAddTodo}>
-    <input required name="todoTitle" />
+    <input required name="title" />
   </form>
 );
 ```
