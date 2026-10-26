@@ -19,11 +19,14 @@ export default function TodoList() {
 
   const db = useDb();
 
+   // Directly subscribe to Jazz reactive data stream (Single Source of Truth):
   const { data: todos = [], isLoading: isTodosLoading } = useAll(app?.todos);
   const { data: categories = [], isLoading: isCategoriesLoading } = useAll(app?.categories);
 
   const [newTodoTitle, setNewTodoTitle] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
+  // 1. Name the state exactly like the key expected by Jazz (for shorthand use in db.insert()):
+  const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
+  //const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   // Initialized with "All" so all todos are displayed on mount:
@@ -155,22 +158,20 @@ export default function TodoList() {
 
     e.preventDefault();
 
-    // 1. Clean the string once and store it:
-    const title = newTodoTitle.trim()
-
-    // 2. Guard clause: block execution if the trimmed string is empty (""):
-    if (!title) return
+    // 2. Clean the string ONCE and evaluate using the exact field name (for shorthand use in db.insert())
+    const title = newTodoTitle.trim();
+    if (!title) return; // Guard clause: blocks execution if the trimmed string is empty ("")
 
     // 3. Persist the clean data straight to Jazz:
     db.insert(app.todos, {
-      title, // Uses our pre-trimmed variable!
+      title,       
       done: false,
-      categoryId: selectedCategoryId || undefined,
+      categoryId, 
     });
 
     // 4. Manual cleanup of the intermediate states:
     setNewTodoTitle("");
-    setSelectedCategoryId(undefined);
+    setCategoryId(undefined)
   };
 
   const toggleTodo = (id: string, currentStatus: boolean) => {
@@ -188,7 +189,7 @@ export default function TodoList() {
     }
   };
 
-  const selectedCategoryName = categories?.find((c: Category) => c.id === selectedCategoryId)?.name;
+  const selectedCategoryName = categories?.find((c: Category) => c.id === categoryId)?.name;
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center p-8">
@@ -254,7 +255,7 @@ export default function TodoList() {
                   <button
                     type="button"
                     onClick={() => {
-                      setSelectedCategoryId(undefined);
+                      setCategoryId(undefined);
                       setIsDropdownOpen(false);
                     }}
                     className="w-full text-left font-bold px-3 py-2 text-xs text-blue-900 hover:bg-slate-50 cursor-pointer"
@@ -266,7 +267,7 @@ export default function TodoList() {
                       key={cat.id}
                       type="button"
                       onClick={() => {
-                        setSelectedCategoryId(cat.id);
+                        setCategoryId(cat.id);
                         setIsDropdownOpen(false);
                       }}
                       className="w-full text-left font-bold px-3 py-2 text-xs text-blue-900 hover:bg-blue-50 cursor-pointer"
