@@ -171,14 +171,48 @@ By adopting a **Pure Local-First** mindset, the local database (IndexedDB via Ja
 
 ### What Concretely Changes in the Code?
 
-| Concept | Traditional React Pattern | Pure LoFi Pattern (traditional FormData) | Pure LoFi Pattern (FormData + React 19 form action attribute) |
-| :--- | :--- | :--- | :--- |
-| **Form Inputs** | Controlled inputs via `useState` (updated on every keystroke via `onChange`) | Native HTML form + `FormData` extracted manually on submission | Native HTML form + `FormData` implicitly handled by React 19 |
-| **Business Data** | Duplicated between `useState` and the database | Stored and observed directly in Jazz via `useAll()` | Stored and observed directly in Jazz via `useAll()` |
-| **React State (`useState`)** | Overused for everything (inputs, data, filters) | **Reserved strictly for ephemeral UI state** (e.g., `editingId`, open modals) | **Reserved strictly for ephemeral UI state** (e.g., `editingId`, open modals) |
-| **Form Resetting** | Manual state clear handlers (`setTitle("")`) | Imperative DOM reset (`e.currentTarget.reset()`) | **Automated** by the framework once the async Action finishes |
-| **Event Trapping** | Manual intercept via `e.preventDefault()` | Manual intercept via `e.preventDefault()` | **No longer required**; natively managed by the `action` attribute |
-| **React Re-renders** | Triggered on every single keypress | Triggered only when the local database mutates | Triggered only when the local database mutates |
+<table>
+  <thead>
+    <tr>
+      <th width="13%">Concept</th>
+      <th width="29%">Traditional React Pattern</th>
+      <th width="29%">Pure LoFi Pattern (traditional FormData)</th>
+      <th width="29%">Pure LoFi Pattern (FormData + React 19 form action attribute)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Form Inputs</strong></td>
+      <td>Controlled inputs via <code>useState</code> (updated on every keystroke via <code>onChange</code>)</td>
+      <td>Native HTML form + <code>FormData</code> extracted manually on submission</td>
+      <td>Native HTML form + <code>FormData</code> implicitly handled by React 19</td>
+    </tr>
+    <tr>
+      <td><strong>React State (<code>useState</code>)</strong></td>
+      <td>Overused for everything (inputs, data, filters)</td>
+      <td><strong>Reserved strictly for ephemeral UI state</strong> (e.g., <code>editingId</code>, open modals)</td>
+      <td><strong>Reserved strictly for ephemeral UI state</strong> (e.g., <code>editingId</code>, open modals)</td>
+    </tr>
+    <tr>
+      <td><strong>Form Resetting</strong></td>
+      <td>Manual state clear handlers (<code>setTitle("")</code>)</td>
+      <td>Imperative DOM reset (<code>e.currentTarget.reset()</code>)</td>
+      <td><strong>Automated</strong> by the framework once the Action completes</td>
+    </tr>
+    <tr>
+      <td><strong>Event Trapping</strong></td>
+      <td>Manual intercept via <code>e.preventDefault()</code></td>
+      <td>Manual intercept via <code>e.preventDefault()</code></td>
+      <td><strong>No longer required</strong>: natively managed by the <code>action</code> attribute</td>
+    </tr>
+    <tr>
+      <td><strong>React Re-renders</strong></td>
+      <td>Triggered on every single keypress</td>
+      <td>Triggered only when the local database mutates</td>
+      <td>Triggered only when the local database mutates</td>
+    </tr>
+  </tbody>
+</table>
 
 
 > 💡 **Try it Live in the App:**
