@@ -19,7 +19,7 @@ export default function TodoList() {
 
   const db = useDb();
 
-   // Directly subscribe to Jazz reactive data stream (Single Source of Truth):
+  // Subscribe to Jazz's reactive local store:
   const { data: todos = [], isLoading: isTodosLoading } = useAll(app?.todos);
   const { data: categories = [], isLoading: isCategoriesLoading } = useAll(app?.categories);
 
@@ -162,7 +162,8 @@ export default function TodoList() {
     const title = newTodoTitle.trim();
     if (!title) return; // Guard clause: blocks execution if the trimmed string is empty ("")
 
-    // 3. Persist the clean data straight to Jazz:
+    // 3. Write the clean data to the local store: UI updates instantly, 
+    // then the data is persisted in the background:
     db.insert(app.todos, {
       title,       
       done: false,
