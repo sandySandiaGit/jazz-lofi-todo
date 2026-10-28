@@ -363,3 +363,33 @@ return (
 
 **3. Direct Reactivity & Local Persistence**: Writes instantly to in-memory state for zero-latency UI updates via useAll(), with background persistence to IndexedDB.
 
+---
+
+## Other UI Screenshots
+
+<div align="center">
+<table border="0" style="width: 100%; border-collapse: collapse;">
+  <tr>
+    <td align="center" valign="bottom" style="border: 0px solid transparent;">
+      <img alt="1" src="https://github.com/user-attachments/assets/f38fccaf-936d-4603-b781-c122d8d0ab2a" width="300" />
+      <p><b><code>All Category Filter - Desktop Layout - Online</code></b></p>
+    </td>
+    <td align="center" valign="bottom" style="border: 0px solid transparent;">
+      <img alt="4" src="https://github.com/user-attachments/assets/e526fa08-1e86-44a3-812c-6a804071a999" width="300" />
+      <p><b><code>Work Category Filter - Desktop Layout - Offline</code></b></p>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" valign="bottom" style="border: 0px solid transparent;">
+      <img width="300" alt="5" src="https://github.com/user-attachments/assets/fc210328-358a-4f26-8fee-c7398b73296b" />
+      <p><b><code>Personal Category Filter - Mobile Layout - Offline</code></b></p>
+    </td>
+    <td align="center" valign="bottom" style="border: 0px solid transparent;">
+      <img width="300" alt="6" src="https://github.com/user-attachments/assets/f19e39f7-90aa-48c4-92f0-31f992351731" />
+      <p><b><code>Task Deletion Confirmation Modal</code></b></p>
+    </td>
+  </tr>
+</table>
+</div>
+
+
