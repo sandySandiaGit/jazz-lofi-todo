@@ -27,7 +27,7 @@ The main purpose of this project was to experiment with **Jazz v2** 💙 and cel
 
 ## Technical Demonstrations & Features Tour
 
-Explore these short screen recordings to see the local-first engine and custom service worker in action:
+Explore these short screen recordings to see the Local-First engine and custom service worker in action:
 
 ### 1. Online/Offline CRUD & Real-Time Sync
 *Instant state mutations locally with asynchronous mesh queuing, powered by Jazz v2 (WASM & OPFS).*
@@ -158,14 +158,63 @@ pnpm preview
 
 In his talk [*What if useState() was your Database?*](https://www.youtube.com/watch?v=kP_ItV3Ikc0), **Anselm Eickhoff** (creator of Jazz) challenges the overuse of `useState` in modern React development. 
 
-Traditionally, developers declare a `useState` hook for every single input field (`title`, `category`, etc.), generating repetitive "glue code" to manually synchronize local UI state with a remote backend.
-
-By adopting a **Pure Local-First** mindset, the local database (IndexedDB via Jazz) acts as the **single reactive source of truth**. We eliminate redundant intermediate states and let native HTML elements handle transient user inputs.
-
-
 <p align="center">
   <img src="https://github.com/user-attachments/assets/7e09b1d2-04bc-476e-ba18-29fa5bbdf11d" style="width: 500px; height: auto; object-fit: contain;" alt="React Miami interview with Anselm Eickhoff." />
 </p>
+
+### I. Eliminating `useState` for Reading & Synchronizing Business Data
+
+In traditional React applications backed by a REST/GraphQL API, reading database state requires managing asynchronous fetches, local state duplication, and loading flags.
+
+#### A. Before Jazz: Traditional React + REST API
+Developers spend a huge amount of time fetching data from a backend server and injecting it into local React state:
+
+```typescript
+import { useState, useEffect } from "react";
+import { type Todo } from "./types";
+
+export default function App() {
+
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchTodos = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/todos");
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const data = await response.json();
+        setTodos(data);
+      } catch (error) {
+        console.error("Failed to fetch todos:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTodos();
+  }, []);
+}
+```
+#### B. After Jazz: Reactive Local Store
+**With Jazz, your local database IS your reactive state!** You subscribe directly to the local store with zero API glue code:
+
+```typescript
+import { useAll, useDb } from "jazz-tools/react";
+import { app, type Todo } from "./schema.ts";
+
+export default function TodoList() {
+
+  const db = useDb();
+
+  // Subscribe directly to Jazz's reactive local store (IndexedDB):
+  const { data: todos = [], isLoading: isTodosLoading } = useAll(app?.todos);
+}
+```
+### II. Eliminating useState for Form Input Writing
+Traditionally, developers declare a `useState` hook for every single input field (`title`, `category`, etc.), generating repetitive "glue code" to manually synchronize local UI state with a remote backend.
+
+By adopting a **Pure Local-First mindset**, we eliminate **redundant intermediate states** and let native HTML elements handle transient user inputs.
 
 ---
 
@@ -243,7 +292,7 @@ By adopting a **Pure Local-First** mindset, the local database (IndexedDB via Ja
 #### 1. Before: Controlled React Pattern (Heavy Intermediate State) => TodoList.tsx
 
 ```tsx
-const [title, setTitle] = useState("");
+const [title, setTitle] = useState<string>("");
 
 const handleAddTodo = (e: React.SubmitEvent<HTMLFormElement>) => {
 
@@ -311,4 +360,6 @@ return (
 **1. Zero Boilerplate**: Completely eliminates repetitive `useState` declarations, `onChange` text listeners, manual event preventions, and imperative form cleanups.
 
 **2. Optimized Performance**: prevents unnecessary React re-renders on every single keystroke.
+
+**3. Direct Reactivity & Local Persistence**: Writes instantly to in-memory state for zero-latency UI updates via useAll(), with background persistence to IndexedDB.
 
