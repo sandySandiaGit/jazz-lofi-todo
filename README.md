@@ -161,7 +161,7 @@ question: what if our database was as seamless and reactive as local UI state?
 
 The first part of this section illustrates how Jazz natively solves this by eliminating API glue code and `useState` duplication when reading business data (`useAll()`).
 
-In the second part, inspired by this **Local-First vision**, this project applies that philosophy **extending the same mindset to form handling** by replacing input `useState` hooks with native HTML `FormData` and `React 19 action attribute`.
+In the second part, inspired by this **Local-First vision**, we apply that **same philosophy** to the **frontend**: just as Jazz eliminates backend network glue code, this project **extends that mindset to form handling**, eliminating UI glue code by replacing input `useState` hooks with native HTML `FormData` and the `React 19 action attribute`.
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/7e09b1d2-04bc-476e-ba18-29fa5bbdf11d" style="width: 500px; height: auto; object-fit: contain;" alt="React Miami interview with Anselm Eickhoff." />
@@ -205,12 +205,10 @@ export default function App() {
 **With Jazz, your local database IS your reactive state!** You subscribe directly to the local store with zero API glue code:
 
 ```typescript
-import { useAll, useDb } from "jazz-tools/react";
+import { useAll, useDb } from "jazz-tools/react"; // useDb is used for mutations (db.insert(),db.upsert(),db.delete,db.update...) see below II.1 & II.2.A-B
 import { app, type Todo } from "./schema.ts";
 
 export default function TodoList() {
-
-  const db = useDb();
 
   // Subscribe directly to Jazz's reactive local store:
   const { data: todos = [], isLoading: isTodosLoading } = useAll(app?.todos);
@@ -298,6 +296,8 @@ By adopting a **Pure Local-First mindset**, we eliminate **redundant intermediat
 #### 1. Before: Controlled React Pattern (Heavy Intermediate State) => TodoList.tsx
 
 ```tsx
+const db = useDb();
+
 const [title, setTitle] = useState<string>("");
 
 const handleAddTodo = (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -321,6 +321,8 @@ return (
 #### 2. After: Pure Local-First Pattern (Native HTML + Jazz) - Zero useState
 ##### A. Intermediate: Uncontrolled Pattern (Traditional FormData) => `TodoListPureLoFi2.md`
 ```tsx
+const db = useDb();
+
 const handleAddTodo = (e: React.SubmitEvent<HTMLFormElement>) => {
 
   e.preventDefault();
@@ -342,6 +344,8 @@ return (
 
 ##### B. Upgraded React 19 Form Action Pattern (Zero Boilerplate) => `TodoListPureLoFi.tsx`
 ```tsx
+const db = useDb();
+
 // React 19 automatically handles event interception and resets form fields natively
 
 const handleAddTodo = (formData: FormData) => {
