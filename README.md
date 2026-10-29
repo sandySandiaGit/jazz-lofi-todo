@@ -154,9 +154,14 @@ pnpm preview
 
 ---
 
-## Moving Towards "Pure Local-First"💗
+## Moving Towards "Pure Local-First"💗 
 
-In his talk [*What if useState() was your Database?*](https://www.youtube.com/watch?v=kP_ItV3Ikc0), **Anselm Eickhoff** (creator of Jazz) challenges the overuse of `useState` in modern React development. 
+In his talk [*What if useState() was your Database?*](https://www.youtube.com/watch?v=kP_ItV3Ikc0), **Anselm Eickhoff** (creator of Jazz) tackles traditional backend complexity and network glue code, asking a simple
+question: what if our database was as seamless and reactive as local UI state? 
+
+The first part of this section illustrates how Jazz natively solves this by eliminating API glue code and `useState` duplication when reading business data (`useAll()`).
+
+In the second part, inspired by this **Local-First vision**, this project applies that philosophy **extending the same mindset to form handling** by replacing input `useState` hooks with native HTML `FormData` and `React 19 action attribute`.
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/7e09b1d2-04bc-476e-ba18-29fa5bbdf11d" style="width: 500px; height: auto; object-fit: contain;" alt="React Miami interview with Anselm Eickhoff." />
@@ -207,12 +212,13 @@ export default function TodoList() {
 
   const db = useDb();
 
-  // Subscribe directly to Jazz's reactive local store (IndexedDB):
+  // Subscribe directly to Jazz's reactive local store:
   const { data: todos = [], isLoading: isTodosLoading } = useAll(app?.todos);
 }
 ```
 ### II. Eliminating useState for Form Input Writing
-Traditionally, developers declare a `useState` hook for every single input field (`title`, `category`, etc.), generating repetitive "glue code" to manually synchronize local UI state with a remote backend.
+
+Traditionally, developers declare a `useState` hook for every single input field (title, category, etc.), generating repetitive boilerplate just to keep the DOM input in sync with React state, triggering unnecessary re-renders on every keystroke.
 
 By adopting a **Pure Local-First mindset**, we eliminate **redundant intermediate states** and let native HTML elements handle transient user inputs.
 
@@ -225,7 +231,7 @@ By adopting a **Pure Local-First mindset**, we eliminate **redundant intermediat
     <tr>
       <th width="13%">Concept</th>
       <th width="29%">Traditional React Pattern</th>
-      <th width="29%">Pure LoFi Pattern (traditional FormData)</th>
+      <th width="29%">Pure LoFi Pattern (FormData + onSubmit)</th>
       <th width="29%">Pure LoFi Pattern (FormData + React 19 form action attribute)</th>
     </tr>
   </thead>
@@ -234,7 +240,7 @@ By adopting a **Pure Local-First mindset**, we eliminate **redundant intermediat
       <td><strong>Form Inputs</strong></td>
       <td>Controlled inputs via <code>useState</code> (updated on every keystroke via <code>onChange</code>)</td>
       <td>Native HTML form + <code>FormData</code> extracted manually on submission</td>
-      <td>Native HTML form + <code>FormData</code> implicitly handled by React 19</td>
+      <td>Native HTML form + <code>FormData</code>passed automatically as argument to the Action</td>
     </tr>
     <tr>
       <td><strong>React State (<code>useState</code>)</strong></td>
@@ -357,11 +363,15 @@ return (
 
 ### Key Benefits
 
-**1. Zero Boilerplate**: Completely eliminates repetitive `useState` declarations, `onChange` text listeners, manual event preventions, and imperative form cleanups.
+#### A. Provided by Jazz
 
-**2. Optimized Performance**: prevents unnecessary React re-renders on every single keystroke.
+**1. Instant Reactivity & Local Persistence**: writes apply instantly in memory (`db.insert()`), `useAll()` reflects them immediately, and persistence to IndexedDB happens in the background.
 
-**3. Direct Reactivity & Local Persistence**: Writes instantly to in-memory state for zero-latency UI updates via useAll(), with background persistence to IndexedDB.
+#### B. Provided by Native HTML Forms & React 19 Action
+
+**2. Zero Boilerplate**: completely eliminates repetitive `useState` declarations, `onChange` text listeners, manual event preventions, and imperative form cleanups.
+
+**3. Fewer Re-renders**: prevents unnecessary React re-renders on every single keystroke.
 
 ---
 
