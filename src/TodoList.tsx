@@ -23,7 +23,7 @@ export default function TodoList() {
   const { data: todos = [], isLoading: isTodosLoading } = useAll(app?.todos);
   const { data: categories = [], isLoading: isCategoriesLoading } = useAll(app?.categories);
 
-  const [newTodoTitle, setNewTodoTitle] = useState("");
+  const [newTodoTitle, setNewTodoTitle] = useState<string>("");
   // 1. Name the state exactly like the key expected by Jazz (for shorthand use in db.insert()):
   const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
   //const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined);
@@ -31,7 +31,7 @@ export default function TodoList() {
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   // Initialized with "All" so all todos are displayed on mount:
   const [activeFilterId, setActiveFilterId] = useState<string>("All");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [todoToDelete, setTodoToDelete] = useState<string | null>(null);
 
   const checkRealConnection = async (timeout = 3000): Promise<boolean> => {
