@@ -167,6 +167,12 @@ In the second part, inspired by this **Local-First vision**, we apply that **sam
   <img src="https://github.com/user-attachments/assets/7e09b1d2-04bc-476e-ba18-29fa5bbdf11d" style="width: 500px; height: auto; object-fit: contain;" alt="React Miami interview with Anselm Eickhoff." />
 </p>
 
+> 💡 **A Note on the "Pure LoFi" Terminology:**
+> 
+> To be clear: native HTML `FormData` and React 19 form actions are standard Web & React patterns, **not part of the official Local-First architecture spec!** 
+> 
+> Coining this form pattern "Pure LoFi" is a **playful extrapolation on my part**, fueled by Anselm's talk and a shared enthusiasm for eliminating unnecessary `useState` boilerplate. Just as Jazz eliminates backend network glue code, this experiment simply pushes that same philosophy to the frontend UI layer!
+
 ### I. Eliminating `useState` for Reading & Synchronizing Business Data
 
 In traditional React applications backed by a REST/GraphQL API, reading database state requires managing asynchronous fetches, local state duplication, and loading flags.
