@@ -211,7 +211,8 @@ export default function App() {
 **With Jazz, your local database IS your reactive state!** You subscribe directly to the local store with zero API glue code:
 
 ```typescript
-import { useAll, useDb } from "jazz-tools/react"; // useDb is used for mutations (db.insert(),db.upsert(),db.delete,db.update...) see below II.1 & II.2.A-B
+import { useAll, useDb } from "jazz-tools/react"; // useDb is used for mutations: 
+// (db.insert(),db.upsert(),db.delete,db.update...) see below II.1 & II.2.A-B
 import { app, type Todo } from "./schema.ts";
 
 export default function TodoList() {
