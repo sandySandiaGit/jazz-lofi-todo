@@ -1,5 +1,5 @@
 import { schema as s } from "jazz-tools"
-import  { migrations }  from "../migrations/index.ts"
+import  { migrations }  from "../migrations/index"
 
 
 /**

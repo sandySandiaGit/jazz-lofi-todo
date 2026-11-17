@@ -1,8 +1,8 @@
 import cors from 'cors';
-import express from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
 
-import { app } from '../src/schema.js';
-import { permissions } from '../src/permissions.js';
+import { app } from '../src/schema';
+import { permissions } from '../src/permissions';
 import { createJazz, acceptLocalFirstAuth, remote } from 'jazz-tools/backend'
 
 const appExpress = express();
@@ -22,7 +22,7 @@ try {
     }),
   });
 
-  appExpress.use('/jazz', (req, res, next) => jazz.nodeHandler(req, res, next));
+  appExpress.use('/jazz', (req:Request, res:Response, next:NextFunction) => jazz.nodeHandler(req, res, next));
 
   // Locally only (outside Vercel), start the HTTP server and WebSockets:
   // En local uniquement (hors Vercel), on démarre le serveur HTTP et les WebSockets:

@@ -1,5 +1,5 @@
 import { schema as s } from "jazz-tools";
-import { app } from "./schema.ts";
+import { app } from "./schema";
 
 export const permissions = s.definePermissions(app, ({ policy }) => {
   
