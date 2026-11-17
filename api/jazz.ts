@@ -1,8 +1,8 @@
 import cors from 'cors';
 import express, { type Request, type Response, type NextFunction } from 'express';
 
-import { app } from '../src/schema';
-import { permissions } from '../src/permissions';
+import { app } from '../src/schema.js';
+import { permissions } from '../src/permissions.js';
 import { createJazz, acceptLocalFirstAuth, remote } from 'jazz-tools/backend'
 
 const appExpress = express();
