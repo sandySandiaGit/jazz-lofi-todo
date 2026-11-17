@@ -8,6 +8,13 @@ export default function App() {
   const [usePureLoFi, setUsePureLoFi] = useState(false);
   
   const appId = import.meta.env.VITE_JAZZ_APP_ID
+
+  // En dev local: http://localhost:3001/jazz
+  // En prod Vercel: /jazz ou https://jazz-lofi-todo.vercel.app/jazz
+//  const syncServer = import.meta.env.DEV 
+//    ? "http://localhost:3001/jazz" 
+//    : "/jazz";
+
  
   return (
 
