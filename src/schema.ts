@@ -1,4 +1,6 @@
-import { schema as s } from "jazz-tools";
+import { schema as s } from "jazz-tools"
+import  { migrations }  from "../migrations/index.ts"
+
 
 /**
  * JAZZ DATABASE SCHEMA (ORM-like !)
@@ -33,10 +35,8 @@ const schema = {
   }),
 };
 
-// Infer the schema type and initialize the Jazz application context:
-type AppSchema = s.Schema<typeof schema>;
-export const app: s.App<AppSchema> = s.defineApp(schema);
+export const app = s.defineApp(schema, { migrations });
 
-// Export TypeScript row types for use inside React components:
+// Export types for React components:
 export type Todo = s.RowOf<typeof app.todos>;
 export type Category = s.RowOf<typeof app.categories>;

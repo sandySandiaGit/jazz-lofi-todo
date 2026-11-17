@@ -8,7 +8,6 @@ export const permissions = s.definePermissions(app, ({ policy }) => {
   policy.todos.allowUpdate.always();
   policy.todos.allowDelete.always();
 
-  
   policy.categories.allowRead.always();
   policy.categories.allowInsert.always();
   policy.categories.allowUpdate.always();

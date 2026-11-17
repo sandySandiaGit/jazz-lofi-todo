@@ -1,34 +1,25 @@
-// See documentation: https://jazz.tools/docs/install/client#jazz-framework-react =>
-// "Set up your app" =>
-// "Create the basic structure for your app with Jazz and a to-do list."
-
-import type { AccountHandle } from "jazz-tools";
 import { JazzProvider } from "jazz-tools/react";
 import { useState } from "react";
 import TodoList from "./TodoList.tsx";
 import TodoListPureLoFi from "./TodoListPureLofi.tsx";
 
-
-// ARCHITECTURAL NOTE:
-// In earlier Jazz APIs, backend initialization relied on raw secrets or internal types
-// like 'AccountDBconfig'. In the modern v2 Alpha API, the configuration is streamlined:
-// the React provider now directly consumes the high-level 'AccountHandle' object.
-// From documentation: "Prepare the account outside the context with createAccountManager" (see: main.tsx)
-export default function App({ account }: { account: AccountHandle }) {
+export default function App() {
 
   const [usePureLoFi, setUsePureLoFi] = useState(false);
-
+  
+  const appId = import.meta.env.VITE_JAZZ_APP_ID
+ 
   return (
+
     <JazzProvider
-      config={{
-        appId: import.meta.env.VITE_JAZZ_APP_ID,
-        serverUrl: "https://v2.sync.jazz.tools/",
-        account,
-      }}
+
+      client={() => import("jazz-tools/local-first")}
+      scope={appId}
+      serverUrl="/jazz"
     >
       <div className="bg-blue-50 text-center px-1 py-5">
         <h2 className="text-pink-500 font-extrabold">
-          Jazz Local-First Demo
+          Jazz Local-First Demo (alpha.60)
         </h2>
         <button
           onClick={() => setUsePureLoFi(!usePureLoFi)}
@@ -36,8 +27,8 @@ export default function App({ account }: { account: AccountHandle }) {
         >
           Switch to{" "}
           {usePureLoFi
-            ? "Standard React (useStates)"
-            : "Pure Local-First (FormData)"}
+            ? 'Standard React (useStates)'
+            : '"Pure Local-First" (FormData)'}
         </button>
       </div>
 
