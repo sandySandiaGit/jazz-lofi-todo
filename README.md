@@ -147,8 +147,8 @@ pnpm dev
 pnpm build
 pnpm preview
  ```
-> 💡 **Note on Testing Offline Sync (`alpha.59`):**
-> Browser DevTools network emulation (such as *Network > Offline* or *Application > Service Workers > Offline checkbox*) may not fully intercept background WebSocket channels or local inter-tab worker sync used by Jazz `alpha.59`.
+> 💡 **Note on Testing Offline Sync (`alpha.60`):**
+> Browser DevTools network emulation (such as *Network > Offline* or *Application > Service Workers > Offline checkbox*) may not fully intercept background WebSocket channels or local inter-tab worker sync used by Jazz `alpha.60`.
 > 
 > To properly test offline mode and multi-device synchronization resilience, please test by temporarily **disabling your device's Wi-Fi / Ethernet connection** or switching to **Airplane Mode**.
 
