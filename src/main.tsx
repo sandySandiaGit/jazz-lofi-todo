@@ -1,18 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { createAccountManager } from 'jazz-tools'
 import App from './App.tsx'
 import './index.css'
-
-const appId = import.meta.env.VITE_JAZZ_APP_ID;
-
-const accounts = await createAccountManager({
-  appId,
-});
-
-// Restore the existing local-first account from localStorage, or create a new one:
-// Restaure le compte local-first existant dans localStorage, ou en crée un nouveau:
-accounts.getLoggedIn() ?? accounts.createLocalFirst();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
