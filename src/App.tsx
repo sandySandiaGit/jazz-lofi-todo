@@ -2,9 +2,10 @@ import { JazzProvider } from "jazz-tools/react";
 import { useState } from "react";
 import TodoList from "./TodoList.tsx";
 import TodoListPureLoFi from "./TodoListPureLofi.tsx";
-import { PasskeyRestoreButton } from "./PasskeyRestoreButton.tsx";
-import { PasskeySaveButton } from "./PasskeySaveButton.tsx";
-import { RecoveryPhraseManager } from "./RecoveryPhraseManager.tsx";
+//import { PasskeyRestoreButton } from "./PasskeyRestoreButton.tsx";
+//import { PasskeySaveButton } from "./PasskeySaveButton.tsx";
+//import { RecoveryPhraseManager } from "./RecoveryPhraseManager.tsx";
+import { AccountAuthBar } from "./AccountAuthBar.tsx";
 
 export default function App() {
 
@@ -22,10 +23,10 @@ export default function App() {
       initial = "local-first"
      
     >
-      <RecoveryPhraseManager />
+      {/* <RecoveryPhraseManager />
       <PasskeySaveButton />
-      <PasskeyRestoreButton />
-    
+      <PasskeyRestoreButton /> */}
+      <AccountAuthBar />
       <div className="bg-blue-50 text-center px-1 py-5">
         <h2 className="text-pink-500 font-extrabold">
           Jazz Local-First Demo (alpha.60)
