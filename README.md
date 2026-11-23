@@ -449,7 +449,7 @@ return (
 
 **Technology, yes, but never at the expense of health (especially children's health)!**
 
-The seed was planted even before my Bachelor's degree. During an earlier training program, I built *appLouloux*, a final project designed to help children learn conjugation offline, with as few updates as possible. 
+The seed was planted even before my Bachelor's degree. During an earlier training program, I built *appLoulou*, a final project designed to help children learn conjugation offline, with as few updates as possible. 
 At the time, one of my instructors pointed me toward PWAs.
 
 Later, I graduated with a Bachelor's degree in Computer Science, where my final thesis focused on converting a standard web app into a PWA.\
