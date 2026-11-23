@@ -16,12 +16,19 @@ The main purpose of this project was to experiment with **Jazz v2** 💙 and cel
 
 ## Features
 
-* **Local-First & Encrypted Storage:** Uses Jazz v2 with OPFS (Origin Private File System) and WebAssembly (WASM) for high-performance, encrypted local-first data persistence.
-* **100% Offline Capable:** Custom Cache-First Service Worker ensures the application loads instantly and works completely without an internet connection.
-* **Automatic Mesh Synchronization:** Background real-time sync with `cloud.jazz.tools` as soon as network connectivity is restored.
-* **Installable PWA:** Includes a web app manifest configured for mobile and desktop PWA installation.
+* **Local-First & SQLite WASM Storage**: Powered by Jazz v2 (alpha.60) using WebAssembly (WASM) backed by SQLite, persisted locally via IndexedDB (`jazz-idb`) and OPFS (Origin Private File System) for ultra-fast, encrypted local-first data persistence.
+* **Same-Origin Backend Proxy (`/jazz`)**: Lightweight serverless backend proxy (`api/jazz.ts`) communicating securely with the Jazz sync Mesh (`v2.sync.jazz.tools`).
+* **100% Offline Capable**: Custom Cache-First Service Worker ensures the application loads instantly and remains 100% operational without an active internet connection.
+* **Automatic Mesh Synchronization**: Background real-time state sync with `cloud.jazz.tools` as soon as network connectivity is restored.
+* **High-Performance Memory Isolation**: Configured with COOP (`same-origin`) and COEP (`credentialless`) headers for optimal browser memory isolation (`SharedArrayBuffer`).
+* **Installable PWA**: Configured web app manifest for seamless desktop and mobile PWA installation.
+* **Passkey & Recovery Phrase Identity Management**: Seamless account creation and session restoration using a **Passkey button** or a **Recovery Phrase manager**, ensuring persistent user identity across devices and browser sessions.
+* **Dual UI Paradigm Exploration**: Interactive toggle between traditional controlled React state and an approach leveraging native HTML `FormData` and React 19 actions.
 
->**Note:** This project was intentionally built using **Jazz v2 (Alpha)** to explore the cutting edge of Local-First web development, despite potential API changes before the final release ! ;)
+> 💡 **Architectural Pivot Note (v2 alpha.60)**:  
+> Prior to `2.0.0-alpha.60`, Jazz apps could operate in a standalone "backendless" client model. With the **integration of SQLite in `alpha.60`**, Jazz evolved into an embedded serverless proxy architecture. The app now uses a lightweight, same-origin **Thin Serverless Backend Proxy** (`api/jazz.ts` mounted on `/jazz`) to handle authentication and route CRDT sync mesh traffic, ensuring full data control under your own domain while preserving 100% Local-First client capabilities.
+
+> This project was intentionally built using **Jazz v2 (Alpha)** to explore the cutting edge of Local-First web development, despite potential API changes before the final release ! ;)
 
 ---
 
@@ -30,7 +37,7 @@ The main purpose of this project was to experiment with **Jazz v2** 💙 and cel
 Explore these short screen recordings to see the Local-First engine and custom service worker in action:
 
 ### 1. Online/Offline CRUD & Real-Time Sync
-*Instant state mutations locally with asynchronous mesh queuing, powered by Jazz v2 (WASM & OPFS).*
+*Instant state mutations locally with asynchronous mesh queuing, powered by Jazz v2 (SQLite WASM & OPFS).*
 
 <table>
   <tr>
@@ -40,7 +47,7 @@ Explore these short screen recordings to see the Local-First engine and custom s
   </tr>
 </table>
 
-* **Zero-Latency Offline CRUD:** Task operations (Create, Update, Delete) execute instantly against the local in-browser database with zero network dependency.
+* **Zero-Latency Offline CRUD:** Task operations (Create, Update, Delete) execute instantly against the local in-browser SQLite database with zero network dependency.
 * **Resilient Sync Mesh:** When connectivity is restored, local **CRDT (Conflict-free Replicated Data Type)** state changes automatically merge and sync across connected devices in real time.
 
 ### 2. Lie-Fi Detection & Network Resilience
@@ -65,9 +72,9 @@ Explore these short screen recordings to see the Local-First engine and custom s
   </tr>
 </table>
 
-* **CRDT Merge Engine:** allows multiple offline devices to edit data independently and automatically merge changes upon reconnection without a central server lock.
+* **CRDT Merge Engine:** allows multiple offline devices to edit relational data independently and automatically merge changes upon reconnection without a central server lock.
 * **Last-Write-Wins (LWW):** for atomic scalar fields like s.string(), Jazz resolves concurrent edits by preserving the update with the latest timestamp ("LAST").
-* **Multi-Field Merge:** independent property updates (e.g., editing a title on Client A while toggling `done` on Client B) merge seamlessly without data loss.
+* **Multi-Field & Relational Merge:** independent property updates (e.g., editing a title on Client A while toggling `done` on Client B) merge seamlessly without data loss.
 
 ### 4. Real-Time WebSocket Synchronization
 *Live, encrypted data updates syncing across multiple application client tabs instantly.*
@@ -80,12 +87,12 @@ Explore these short screen recordings to see the Local-First engine and custom s
   </tr>
 </table>
 
-### The Paradigm Shift: The Network Is No Longer the Boss
+### The Paradigm Shift: The Network Is No Longer the Boss!
 
-While the demo videos above use DevTools toggles and Lie-Fi simulation to prove resilience, **the true magic of Jazz v2 is that the application doesn't care about network status at all !**
+While the demo videos above use DevTools toggles and Lie-Fi simulation to prove resilience, **the true magic of Jazz v2 is that the application doesn't care about network status at all!**
 
-* **Always-Local Execution:** The app operates 100% against the in-browser local database (OPFS/WASM) with zero latency.
-* **Network as a Silent Sync Layer:** Connectivity is no longer a prerequisite for user actions : the network is demoted to a simple background transport layer that replicates CRDT state and enables real-time collaboration when available.
+* **Always-Local Execution:** The app operates 100% against the in-browser local SQLite database (OPFS/WASM) with zero latency.
+* **Network as a Silent Sync Layer:** Connectivity is no longer a prerequisite for user actions : the network is demoted to a simple background transport layer that replicates CRDT state via the `/jazz` proxy and enables real-time collaboration when available.
 * **No `isOnline` Hacks:** No blocking loading spinners, no fragile state checks, and no dropped data. The app just works, always !
 
 ### 🎵 Music Credits
@@ -110,39 +117,52 @@ This project is built strictly for **educational, non-commercial portfolio purpo
 
 ## Tech Stack
 
-* **Frontend:** React 19, Vite, Tailwind CSS
-* **Local-First Engine:** `jazz-tools` (Jazz 2.0.0-alpha.60)
-* **Storage:** IndexedDB / OPFS / WebAssembly
-* **PWA:** Custom Cache-First Service Worker
-* **Deployment:** Vercel
+* **Frontend Framework**: React 19, Vite, Tailwind CSS
+* **Local-First Engine**: `jazz-tools` (`2.0.0-alpha.60`)
+* **Local Storage & Database Engine**: Embedded **SQLite** (via WebAssembly (WASM)) persisted in **IndexedDB** (`jazz-idb`) & **OPFS**
+* **Backend Architecture**: Express / Vercel **Serverless** Function backend proxy (`api/jazz.ts`) mounted on `/jazz`
+* **Offline & PWA**: Custom Cache-First Service Worker
+* **Deployment**: Vercel (with custom COOP/COEP security header rewrites)
 
 ---
 
 ## Getting started
 
-1. **Clone the repository:**
-    ```bash
-    git clone https://github.com/sandySandiaGit/jazz-lofi-todo.git
-    cd jazz-lofi-todo
-    ```
+**1. Clone the repository:**
+```bash
+git clone https://github.com/sandySandiaGit/jazz-lofi-todo.git
+cd jazz-lofi-todo
+```
    
-2. **Install dependencies:**
-   ```bash
-   pnpm install
-    ```
+**2. Install dependencies:**
+```bash
+pnpm install
+```
 
-3. **Configure environment variables:**
+**3. Configure environment variables:**
 Create a `.env` file in the root directory based on `.env.example`.
 
 ---
 
 ## Running the tiny App
 
-**Run Local Development (with Hot-Reloading):**
+### Run Local Development:
+
+To run the application locally, launch both the Jazz backend proxy server and the Vite development server:
+
+**1. Start the Jazz Backend API Server**
+```bash
+pnpm dev:api
+```
+Runs tsx --env-file=.env api/jazz.ts that starts the Express server on http://localhost:3001 with WebSockets attached.
+
+**2. Start the Frontend Development Server - with Hot-Reloading (in a second terminal)**
 ```bash
 pnpm dev
- ```
-**Run Production Preview (for Service Worker & Offline Testing):**
+```
+Launches Vite with Hot Module Replacement (HMR) local proxying from /jazz to http://localhost:3001.
+
+### Run Production Preview (for Service Worker & Offline Testing):
 ```bash
 pnpm build
 pnpm preview
