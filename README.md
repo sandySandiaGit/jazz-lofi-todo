@@ -22,7 +22,7 @@ The main purpose of this project was to experiment with **Jazz v2** 💙 and cel
 * **Automatic Mesh Synchronization**: Background real-time state sync with `cloud.jazz.tools` as soon as network connectivity is restored.
 * **High-Performance Memory Isolation**: Configured with COOP (`same-origin`) and COEP (`credentialless`) headers for optimal browser memory isolation (`SharedArrayBuffer`).
 * **Installable PWA**: Configured web app manifest for seamless desktop and mobile PWA installation.
-* **Passkey & Recovery Phrase Identity Management**: Seamless account creation and session restoration using a **Passkey button** or a **Recovery Phrase manager**, ensuring persistent user identity across devices and browser sessions.
+* **Passkey & Recovery Phrase Identity Management**: Seamless account creation and session restoration using a **Passkey button** or a **Recovery Phrase manager**, ensuring persistent user identity across devices and browser sessions (see "Other UI Screenshots" section at the end of the README)
 * **Dual UI Paradigm Exploration**: Interactive toggle between traditional controlled React state and an approach leveraging native HTML `FormData` and React 19 actions.
 
 > 💡 **Architectural Pivot Note (v2 alpha.60)**:  
@@ -430,7 +430,20 @@ return (
       <p><b><code>Task Deletion Confirmation Modal</code></b></p>
     </td>
   </tr>
+  <tr>
+    <td align="center" valign="bottom" style="border: 0px solid transparent;">
+      <img width="300" alt="5" src="https://github.com/user-attachments/assets/150932ae-5697-4ba3-8420-5a5239dd1a04" />
+      <p><b><code>Passkey button & Recovery Phrase manager</code></b></p>
+    </td>
+    <td align="center" valign="bottom" style="border: 0px solid transparent;">
+      <img width="300" alt="6" src="https://github.com/user-attachments/assets/d9c009a9-9e55-4115-9161-4dc5dfb6e1ad" />
+      <p><b><code>Opened Recovery Phrase manager</code></b></p>
+    </td>
+  </tr>
 </table>
 </div>
+
+
+
 
 
