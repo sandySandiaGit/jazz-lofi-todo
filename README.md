@@ -454,10 +454,11 @@ At the time, one of my instructors pointed me toward PWAs.
 
 Later, I graduated with a Bachelor's degree in Computer Science, where my final thesis focused on converting a standard web app into a PWA.\
 You might think this brings things full circle, but quite the opposite. The journey has only just begun:\
-I've been passionate about the **Local-First philosophy** and have strongly advocated for it ever since.
+I've been passionate about the **Local-First philosophy** and have strongly advocated for it ever since!
 
-I truly believe **a different web is possible**, especially for children, who shouldn't have to be constantly connected or exposed to 5G just to use an application. 
+I truly believe **a different web is possible**, especially for children, who shouldn't have to be constantly connected or exposed to 5G just to use an application!\
+Following the precautionary principle when it comes to children's exposure to electromagnetic waves, I even replaced the Wi-Fi and cordless phones at my son's preschool-elementary school with a full wired network and corded phones, with the principal's approval and support. 
 
-I'm currently exploring Local-First tools I've fallen in love with to show skeptical devs and future employers that **the future is local**, 
-**the revolution is underway**, and **Local-First will soon be the norm!**
+I'm currently exploring Local-First tools I've fallen in love with to show skeptical devs and future employers that **the Future is Local**, 
+**the Revolution is underway**, and **Local-First will soon be the norm!**
 
