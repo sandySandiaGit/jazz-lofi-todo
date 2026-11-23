@@ -452,9 +452,9 @@ return (
 The seed was planted even before my Bachelor's degree. During an earlier training program, I built *appLouloux*, a final project designed to help children learn conjugation offline, with as few updates as possible. 
 At the time, one of my instructors pointed me toward PWAs.
 
-Later, I graduated with a Bachelor's degree in Computer Science, where my final thesis focused on converting a standard web app into a Local-First (LoFi) application.\
+Later, I graduated with a Bachelor's degree in Computer Science, where my final thesis focused on converting a standard web app into a PWA.\
 You might think this brings things full circle, but quite the opposite. The journey has only just begun:\
-I've been passionate about this philosophy and have strongly advocated for it ever since.
+I've been passionate about the **Local-First philosophy** and have strongly advocated for it ever since.
 
 I truly believe **a different web is possible**, especially for children, who shouldn't have to be constantly connected or exposed to 5G just to use an application. 
 
