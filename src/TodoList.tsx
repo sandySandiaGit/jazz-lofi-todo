@@ -367,7 +367,7 @@ export default function TodoList() {
                     ) : (
                       <span
                         onClick={() => setEditingId(todo.id)}
-                        className={`text-sm cursor-pointer flex-1 truncate ${todo.done ? "line-through text-slate-400 font-medium" : `\${styles.text} font-bold`
+                        className={`text-sm cursor-pointer flex-1 truncate ${todo.done ? "line-through text-slate-400 font-medium" : `${styles.text} font-bold`
                           }`}
                       >
                         {todo.title}

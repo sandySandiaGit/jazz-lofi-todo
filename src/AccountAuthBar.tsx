@@ -90,7 +90,7 @@ export function AccountAuthBar() {
   };
 
   // 4. Restore via recovery phrase:
-  const handleRestorePhrase = async (e: React.FormEvent) => {
+  const handleRestorePhrase = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!sessionActions || !inputPhrase.trim()) return;
     setLoading(true);
@@ -140,9 +140,9 @@ export function AccountAuthBar() {
         {!showAdvanced && (
           <button
             type="button"
-            // En React, passer une fonction (v) => !v à un setState s'appelle une mise à jour fonctionnelle (functional update)
+            // React functional update:
             onClick={() => setShowAdvanced((value) => !value)}
-            // onClick={() => setShowAdvanced(true)}
+            //OR: onClick={() => setShowAdvanced(true)}
             className="cursor-pointer rounded-md bg-green-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2 sm:text-sm"
           >
             Recovery phrase / Options

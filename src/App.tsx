@@ -20,7 +20,7 @@ export default function App() {
       client={() => import("jazz-tools/local-first")}
       scope={appId}
       serverUrl="/jazz"
-      initial = "local-first"
+      initial="local-first"
      
     >
       {/* <RecoveryPhraseManager />

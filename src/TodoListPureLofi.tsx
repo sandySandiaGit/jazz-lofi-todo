@@ -214,7 +214,7 @@ export default function TodoListPureLoFi() {
               type="text"
               maxLength={30}
               placeholder="Add a collaborative task..."
-              required pattern=".*\S.*"
+              required pattern=".*\S.*" // Ensures non-empty input (no whitespace-only)
               className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:border-blue-900 text-sm text-blue-900"
             />
             <button
@@ -348,7 +348,7 @@ export default function TodoListPureLoFi() {
                     ) : (
                       <span
                         onClick={() => setEditingId(todo.id)}
-                        className={`text-sm cursor-pointer flex-1 truncate ${todo.done ? "line-through text-slate-400 font-medium" : `\${styles.text} font-bold`
+                        className={`text-sm cursor-pointer flex-1 truncate ${todo.done ? "line-through text-slate-400 font-medium" : `${styles.text} font-bold`
                           }`}
                       >
                         {todo.title}
