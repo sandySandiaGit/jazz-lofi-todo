@@ -43,28 +43,23 @@ console.log('[Backend] Jazz initialized successfully, mounting middleware...');
 //Jazz handler:
 appExpress.use('/jazz', (req: any, res: any, next: any) => jazz.nodeHandler(req, res, next));
 
-let exportedHandler: any = appExpress;
+const server = createServer(appExpress);
 
+// 1. This runs in both environments (locally and on Vercel) 
+// to attach WebSockets to the same `server` instance :
+jazz.attach(server).then(() => {
+  console.log('[Backend] Jazz and WebSockets attached successfully!');
+});
+
+// 2. Locally, that exact same `server` instance (with WebSockets already attached) 
+// starts listening on port 3001:
 if (!process.env.VERCEL) {
-
-  // Locally: start the HTTP server and attach WebSockets to it:
-  // En local : on démarre le serveur HTTP et on y attache les WebSockets:
-  const localServer = appExpress.listen(3001, () => {
+  server.listen(3001, () => {
     console.log('[Backend] Express server listening on http://localhost:3001');
   });
-  jazz.attach(localServer).then(() => {
-    console.log('[Backend] Jazz and WebSockets attached successfully!');
-  });
-
-} else {
-
-  // On Vercel: test with createServer + attach:
-  // Sur Vercel : test avec createServer + attach:
-  const vercelServer = createServer(appExpress);
-  jazz.attach(vercelServer).then(() => {
-    console.log('[Backend] Jazz and WebSockets attached on Vercel!');
-  });
-  exportedHandler = vercelServer;
 }
 
-export default exportedHandler;       
+// 3. On Vercel, Vercel takes that exact same exported `server` 
+// and handles listening itself:
+export default server;
+      

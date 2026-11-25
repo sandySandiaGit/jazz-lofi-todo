@@ -27,9 +27,7 @@ The main purpose of this project was to experiment with **Jazz v2** 💙 and cel
 
 
 > 💡 **Architectural Evolution Note (v2 alpha.60 → 2.0.0-beta.2):**
-
 > Prior to `2.0.0-alpha.60`, Jazz apps could operate in a standalone "backendless" client model. With the **integration of SQLite in alpha.60**, Jazz evolved into an embedded serverless proxy architecture using a lightweight, same-origin **Thin Serverless Backend Proxy** (`api/jazz.ts` mounted on `/jazz`) to handle authentication and route CRDT sync mesh traffic.
-
 > Upgrading to **Jazz v2 (`2.0.0-beta.2`)** streamlines this architecture further:
 > - **Generated Bindings (`jazz-tools generate`):** Schema definitions (`src/schema.ts`) and declarative permissions are compiled into `src/jazz.generated.ts`, keeping frontend queries (`useAll`, `useDb`) and backend validation strictly typed and synchronized.
 > - **Unified Device Accounts:** Legacy `local-first` identities are now standardized under `device` accounts (`useJazzSession`, >`acceptDeviceAccounts`), simplifying guest onboarding, Passkey backups, and Recovery Phrase restoration.
@@ -170,10 +168,14 @@ pnpm dev
 Launches Vite with Hot Module Replacement (HMR) local proxying from /jazz to http://localhost:3001.
 
 ### Run Production Preview (for Service Worker & Offline Testing):
+
+With the Jazz backend proxy server running (see above), build and launch the Vite production preview:
+
 ```bash
 pnpm build
 pnpm preview
- ```
+```
+
 > 💡 **Note on Testing Offline Sync (`beta.2`):**
 > Browser DevTools network emulation (such as *Network > Offline* or *Application > Service Workers > Offline checkbox*) may not fully intercept background WebSocket channels or local inter-tab worker sync used by Jazz `beta.2`.
 > 
