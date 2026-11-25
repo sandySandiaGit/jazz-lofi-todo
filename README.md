@@ -1,8 +1,8 @@
 
 
-# Jazz v2 (alpha) and React 19 FullyLoFi Very Tiny To-Do App
+# Jazz v2 (beta) and React 19 FullyLoFi Very Tiny To-Do App
 
-A modern, fast, and offline-capable micro To-Do application built with **Jazz.tools v2 (alpha 60)**, **React 19**, **Vite**, and **Tailwind CSS**. 
+A modern, fast, and offline-capable micro To-Do application built with **Jazz.tools v2 (beta.2)**, **React 19**, **Vite**, and **Tailwind CSS**. 
 
 The main purpose of this project was to experiment with **Jazz v2** 💙 and celebrate a deep passion for the **LoFi Philosophy** 💗. It demonstrates a true **Local-First architecture** paired with a custom **Cache-First Service Worker** to deliver **instant UI updates** and **seamless offline capabilities**.
 
@@ -16,7 +16,7 @@ The main purpose of this project was to experiment with **Jazz v2** 💙 and cel
 
 ## Features
 
-* **Local-First & SQLite WASM Storage**: Powered by Jazz v2 (alpha.60) using WebAssembly (WASM) backed by SQLite, persisted locally via IndexedDB (`jazz-idb`) and OPFS (Origin Private File System) for ultra-fast, encrypted local-first data persistence.
+* **Local-First & SQLite WASM Storage**: Powered by Jazz v2 (beta) using WebAssembly (WASM) backed by SQLite, persisted locally via IndexedDB (`jazz-idb`) and OPFS (Origin Private File System) for ultra-fast, encrypted local-first data persistence.
 * **Same-Origin Backend Proxy (`/jazz`)**: Lightweight serverless backend proxy (`api/jazz.ts`) communicating securely with the Jazz sync Mesh (`v2.sync.jazz.tools`).
 * **100% Offline Capable**: Custom Cache-First Service Worker ensures the application loads instantly and remains 100% operational without an active internet connection.
 * **Automatic Mesh Synchronization**: Background real-time state sync with `cloud.jazz.tools` as soon as network connectivity is restored.
@@ -25,10 +25,17 @@ The main purpose of this project was to experiment with **Jazz v2** 💙 and cel
 * **Passkey & Recovery Phrase Identity Management**: Seamless account creation and session restoration using a **Passkey button** or a **Recovery Phrase manager**, ensuring persistent user identity across devices and browser sessions (see "Other UI Screenshots" section at the end of the README)
 * **Dual UI Paradigm Exploration**: Interactive toggle between traditional controlled React state and an approach leveraging native HTML `FormData` and React 19 actions.
 
-> 💡 **Architectural Pivot Note (v2 alpha.60)**:  
-> Prior to `2.0.0-alpha.60`, Jazz apps could operate in a standalone "backendless" client model. With the **integration of SQLite in `alpha.60`**, Jazz evolved into an embedded serverless proxy architecture. The app now uses a lightweight, same-origin **Thin Serverless Backend Proxy** (`api/jazz.ts` mounted on `/jazz`) to handle authentication and route CRDT sync mesh traffic, ensuring full data control under your own domain while preserving 100% Local-First client capabilities.
 
-> This project was intentionally built using **Jazz v2 (Alpha)** to explore the cutting edge of Local-First web development, despite potential API changes before the final release ! ;)
+> 💡 **Architectural Evolution Note (v2 alpha.60 → 2.0.0-beta.2):**
+
+> Prior to `2.0.0-alpha.60`, Jazz apps could operate in a standalone "backendless" client model. With the **integration of SQLite in alpha.60**, Jazz evolved into an embedded serverless proxy architecture using a lightweight, same-origin **Thin Serverless Backend Proxy** (`api/jazz.ts` mounted on `/jazz`) to handle authentication and route CRDT sync mesh traffic.
+
+> Upgrading to **Jazz v2 (`2.0.0-beta.2`)** streamlines this architecture further:
+> - **Generated Bindings (`jazz-tools generate`):** Schema definitions (`src/schema.ts`) and declarative permissions are compiled into `src/jazz.generated.ts`, keeping frontend queries (`useAll`, `useDb`) and backend validation strictly typed and synchronized.
+> - **Unified Device Accounts:** Legacy `local-first` identities are now standardized under `device` accounts (`useJazzSession`, >`acceptDeviceAccounts`), simplifying guest onboarding, Passkey backups, and Recovery Phrase restoration.
+
+
+> Originally, this project was intentionally built using **Jazz v2 (alpha)** to explore the cutting edge of Local-First web development, despite potential API changes before the final release ! ;)
 
 ---
 
@@ -118,7 +125,7 @@ This project is built strictly for **educational, non-commercial portfolio purpo
 ## Tech Stack
 
 * **Frontend Framework**: React 19, Vite, Tailwind CSS
-* **Local-First Engine**: `jazz-tools` (`2.0.0-alpha.60`)
+* **Local-First Engine**: `jazz-tools` (`2.0.0-beta.2`)
 * **Local Storage & Database Engine**: Embedded **SQLite** (via WebAssembly (WASM)) persisted in **IndexedDB** (`jazz-idb`) & **OPFS**
 * **Backend Architecture**: Express / Vercel **Serverless** Function backend proxy (`api/jazz.ts`) mounted on `/jazz`
 * **Offline & PWA**: Custom Cache-First Service Worker
@@ -167,8 +174,8 @@ Launches Vite with Hot Module Replacement (HMR) local proxying from /jazz to htt
 pnpm build
 pnpm preview
  ```
-> 💡 **Note on Testing Offline Sync (`alpha.60`):**
-> Browser DevTools network emulation (such as *Network > Offline* or *Application > Service Workers > Offline checkbox*) may not fully intercept background WebSocket channels or local inter-tab worker sync used by Jazz `alpha.60`.
+> 💡 **Note on Testing Offline Sync (`beta.2`):**
+> Browser DevTools network emulation (such as *Network > Offline* or *Application > Service Workers > Offline checkbox*) may not fully intercept background WebSocket channels or local inter-tab worker sync used by Jazz `beta.2`.
 > 
 > To properly test offline mode and multi-device synchronization resilience, please test by temporarily **disabling your device's Wi-Fi / Ethernet connection** or switching to **Airplane Mode**.
 
@@ -233,7 +240,7 @@ export default function App() {
 ```typescript
 import { useAll, useDb } from "jazz-tools/react"; // useDb is used for mutations: 
 // (db.insert(),db.upsert(),db.delete,db.update...) see below II.1 & II.2.A-B
-import { app, type Todo } from "./schema.ts";
+import { app, type Todo } from "./jazz.generated.ts";
 
 export default function TodoList() {
 
