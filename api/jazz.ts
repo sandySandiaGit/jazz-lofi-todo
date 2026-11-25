@@ -1,9 +1,9 @@
 import cors from 'cors';
 import express from 'express';
 
-import { app } from '../src/schema.js';
-import { permissions } from '../src/permissions.js';
-import { createJazz, acceptLocalFirstAuth, remote } from 'jazz-tools/backend'
+import { app } from '../src/jazz.generated.js';
+import permissions from "../src/jazz.permissions.json" with { type: "json" };
+import { createJazz, acceptDeviceAccounts, remote } from 'jazz-tools/backend'
 
 import { createServer } from 'node:http'
 
@@ -19,11 +19,18 @@ if (!appId || !secret) {
 
 console.log('[Backend] Initializing Jazz with App ID:', appId);
 
+const vercelHost =
+  process.env.VERCEL_ENV === "production"
+    ? process.env.VERCEL_PROJECT_PRODUCTION_URL
+    : process.env.VERCEL_URL;
+
 const jazz = createJazz({
   app,
   permissions,
-  //authenticate: acceptLocalFirstAuth,
-  authenticate: acceptLocalFirstAuth,
+  authenticate: acceptDeviceAccounts,
+  // Explicitly set publicUrl on Vercel (production or preview); leave undefined locally
+  // so createJazz infers the forwarded Host header from Vite dev (5173) or preview (4173):
+  publicUrl: vercelHost ? `https://${vercelHost}/jazz` : undefined,
   store: remote({
     appId: appId!,
     url: "https://v2.sync.jazz.tools/",
@@ -32,7 +39,7 @@ const jazz = createJazz({
 });
 
 console.log('[Backend] Jazz initialized successfully, mounting middleware...');
- 
+
 //Jazz handler:
 appExpress.use('/jazz', (req: any, res: any, next: any) => jazz.nodeHandler(req, res, next));
 
@@ -48,7 +55,7 @@ if (!process.env.VERCEL) {
   jazz.attach(localServer).then(() => {
     console.log('[Backend] Jazz and WebSockets attached successfully!');
   });
-  
+
 } else {
 
   // On Vercel: test with createServer + attach:

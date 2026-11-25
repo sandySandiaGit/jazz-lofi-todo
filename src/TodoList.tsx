@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAll, useDb } from "jazz-tools/react";
-import { app, type Todo, type Category } from "./schema.ts";
+import { app, type Todo, type Category } from "./jazz.generated.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CATEGORY_ICONS, CATEGORY_COLORS } from "./constants";
 import { faFilePen, faTrashCan, faPlus, faBriefcase, faCircleCheck, faCircleDot, faChevronDown } from "@fortawesome/free-solid-svg-icons";

@@ -1,6 +1,4 @@
 import { schema as s } from "jazz-tools"
-import  { migrations }  from "./migrations/index.js"
-
 
 /**
  * JAZZ DATABASE SCHEMA (ORM-like !)
@@ -10,7 +8,7 @@ import  { migrations }  from "./migrations/index.js"
  * - Optional Relation: Todos can exist with or without a Category.
  */
 
-const schema = {
+export const schema = s.defineSchema({
 
   todos: s.table({
 
@@ -33,10 +31,21 @@ const schema = {
     // Reverse relation mapping: resolves all Todos linked to this Category
     todos: s.reverse("todos", "category"),
   }),
-};
+});
 
-export const app = s.defineApp(schema, { migrations });
+const { definePermissions } = schema;
 
-// Export types for React components:
-export type Todo = s.RowOf<typeof app.todos>;
-export type Category = s.RowOf<typeof app.categories>;
+export const permissions = definePermissions({
+  categories: {
+    read: true,
+    insert: true,
+    update: true,
+    delete: true,
+  },
+  todos: {
+    read: true,
+    insert: true,
+    update: true,
+    delete: true,
+  },
+});
