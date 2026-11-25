@@ -22,6 +22,7 @@ console.log('[Backend] Initializing Jazz with App ID:', appId);
 const jazz = createJazz({
   app,
   permissions,
+  //authenticate: acceptLocalFirstAuth,
   authenticate: acceptLocalFirstAuth,
   store: remote({
     appId: appId!,

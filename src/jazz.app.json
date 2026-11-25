@@ -1,0 +1,14 @@
+{
+  "$schema": "https://jazz.tools/schemas/jazz.app.schema.json",
+  "format": 1,
+  "tables": {
+    "categories": {
+      "columns": { "name": "string", "color": "string", "iconKey": "string" },
+      "relations": { "todos": { "reverse": "todos", "relation": "category" } }
+    },
+    "todos": {
+      "columns": { "categoryId": "uuid?", "title": "string", "done": "boolean" },
+      "relations": { "category": { "rel": "categories", "column": "categoryId" } }
+    }
+  }
+}
