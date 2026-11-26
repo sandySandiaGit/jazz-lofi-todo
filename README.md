@@ -17,7 +17,7 @@ The main purpose of this project was to experiment with **Jazz v2** 💙 and cel
 ## Features
 
 * **Local-First & SQLite WASM Storage**: Powered by Jazz v2 (beta) using WebAssembly (WASM) backed by SQLite, persisted locally via IndexedDB (`jazz-idb`) and OPFS (Origin Private File System) for ultra-fast, encrypted local-first data persistence.
-* **Same-Origin Backend Proxy (`/jazz`)**: Lightweight serverless backend proxy (`api/jazz.ts`) communicating securely with the Jazz sync Mesh (`v2.sync.jazz.tools`).
+* **Same-Origin Backend Proxy (`/jazz`)**: Lightweight Express + WebSocket backend proxy (`api/jazz.ts`) communicating securely with the Jazz sync Mesh (`v2.sync.jazz.tools`) while serving the built static frontend.
 * **100% Offline Capable**: Custom Cache-First Service Worker ensures the application loads instantly and remains 100% operational without an active internet connection.
 * **Automatic Mesh Synchronization**: Background real-time state sync with `cloud.jazz.tools` as soon as network connectivity is restored.
 * **High-Performance Memory Isolation**: Configured with COOP (`same-origin`) and COEP (`credentialless`) headers for optimal browser memory isolation (`SharedArrayBuffer`).
@@ -25,15 +25,16 @@ The main purpose of this project was to experiment with **Jazz v2** 💙 and cel
 * **Passkey & Recovery Phrase Identity Management**: Seamless account creation and session restoration using a **Passkey button** or a **Recovery Phrase manager**, ensuring persistent user identity across devices and browser sessions (see "Other UI Screenshots" section at the end of the README)
 * **Dual UI Paradigm Exploration**: Interactive toggle between traditional controlled React state and an approach leveraging native HTML `FormData` and React 19 actions.
 
+> 💡 **Architectural Evolution Note (v2 alpha.60 → 2.0.0-beta.2 & Render Hosting):**
+>
+> Prior to `2.0.0-alpha.60`, Jazz apps could operate in a standalone "backendless" client model. With the **integration of SQLite in alpha.60**, the tiny app evolved into an embedded serverless proxy architecture using a lightweight, same-origin **Thin Serverless Backend Proxy** (`api/jazz.ts` mounted on `/jazz`) to handle authentication and route CRDT sync mesh traffic.
+>
+> Upgrading to **Jazz v2 (`2.0.0-beta.2`)** and moving hosting to **Render** streamlines this architecture further:
+> - **Generated Bindings (`jazz-tools generate`):** Schema definitions (`src/schema.ts`) and declarative permissions are compiled into `src/jazz.generated.ts`, keeping frontend queries (`useAll`, `useDb`) and backend validation  strictly typed and synchronized.
+> - **Unified Device Accounts:** Legacy `local-first` identities are now standardized under `device` accounts (`useJazzSession`, `acceptDeviceAccounts`), simplifying guest onboarding, Passkey backups, and Recovery Phrase  restoration.
+> - **Persistent Node Server vs. Serverless Quotas:** Because real-time WebSocket synchronization keeps persistent connections open while tabs are active, running it on a stateless serverless function quickly consumes active  compute/CPU quotas. Hosting Express on a **persistent Node.js container (Render)** keeps WebSocket connections open natively in memory without per-millisecond serverless billing, while serving the static Vite frontend (`dist/`)  with `COOP`/`COEP` headers from the same origin.
 
-> 💡 **Architectural Evolution Note (v2 alpha.60 → 2.0.0-beta.2):**
-> Prior to `2.0.0-alpha.60`, Jazz apps could operate in a standalone "backendless" client model. With the **integration of SQLite in alpha.60**, Jazz evolved into an embedded serverless proxy architecture using a lightweight, same-origin **Thin Serverless Backend Proxy** (`api/jazz.ts` mounted on `/jazz`) to handle authentication and route CRDT sync mesh traffic.
-> Upgrading to **Jazz v2 (`2.0.0-beta.2`)** streamlines this architecture further:
-> - **Generated Bindings (`jazz-tools generate`):** Schema definitions (`src/schema.ts`) and declarative permissions are compiled into `src/jazz.generated.ts`, keeping frontend queries (`useAll`, `useDb`) and backend validation strictly typed and synchronized.
-> - **Unified Device Accounts:** Legacy `local-first` identities are now standardized under `device` accounts (`useJazzSession`, >`acceptDeviceAccounts`), simplifying guest onboarding, Passkey backups, and Recovery Phrase restoration.
-
-
-> Originally, this project was intentionally built using **Jazz v2 (alpha)** to explore the cutting edge of Local-First web development, despite potential API changes before the final release ! ;)
+> 💡 Originally, this project was intentionally built using **Jazz v2 (alpha)** to explore the cutting edge of Local-First web development, despite potential API changes before the final release ! ;)
 
 ---
 
@@ -126,8 +127,10 @@ This project is built strictly for **educational, non-commercial portfolio purpo
 * **Local-First Engine**: `jazz-tools` (`2.0.0-beta.2`)
 * **Local Storage & Database Engine**: Embedded **SQLite** (via WebAssembly (WASM)) persisted in **IndexedDB** (`jazz-idb`) & **OPFS**
 * **Backend Architecture**: Express / Vercel **Serverless** Function backend proxy (`api/jazz.ts`) mounted on `/jazz`
+* **Backend Architecture**: Persistent Express + WebSocket backend proxy (`api/jazz.ts`) mounted on `/jazz` (also serving the built Vite static frontend)
 * **Offline & PWA**: Custom Cache-First Service Worker
-* **Deployment**: Render
+* **Deployment**: Render (serves both the static Vite frontend with custom COOP/COEP headers and the Express/WebSocket `/jazz` proxy).
+> 💡  hosted on Render's free tier, so the server may take ~30–50s to wake up after 15 minutes of inactivity while the Local-First UI loads instantly!
 
 ---
 
