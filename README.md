@@ -127,7 +127,7 @@ This project is built strictly for **educational, non-commercial portfolio purpo
 * **Local Storage & Database Engine**: Embedded **SQLite** (via WebAssembly (WASM)) persisted in **IndexedDB** (`jazz-idb`) & **OPFS**
 * **Backend Architecture**: Express / Vercel **Serverless** Function backend proxy (`api/jazz.ts`) mounted on `/jazz`
 * **Offline & PWA**: Custom Cache-First Service Worker
-* **Deployment**: Vercel (with custom COOP/COEP security header rewrites)
+* **Deployment**: Render
 
 ---
 
