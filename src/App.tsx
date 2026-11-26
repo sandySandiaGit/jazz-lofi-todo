@@ -2,34 +2,26 @@ import { JazzProvider } from "jazz-tools/react";
 import { useState } from "react";
 import TodoList from "./TodoList.tsx";
 import TodoListPureLoFi from "./TodoListPureLofi.tsx";
-//import { PasskeyRestoreButton } from "./PasskeyRestoreButton.tsx";
-//import { PasskeySaveButton } from "./PasskeySaveButton.tsx";
-//import { RecoveryPhraseManager } from "./RecoveryPhraseManager.tsx";
 import { AccountAuthBar } from "./AccountAuthBar.tsx";
 
 export default function App() {
 
   const [usePureLoFi, setUsePureLoFi] = useState(false);
-  
-  const appId = import.meta.env.VITE_JAZZ_APP_ID
 
   return (
 
     <JazzProvider
-
-      client={() => import("jazz-tools/local-first")}
-      scope={appId}
-      //serverUrl="/jazz"
-      serverUrl={import.meta.env.VITE_JAZZ_SERVER_URL || "/jazz"}
-      initial="local-first" 
+      config={{
+        serverUrl: "/jazz",
+        client: () => import("jazz-tools/local-first"),
+        localFirst: "now",
+        initial: "device",
+      }}
     >
-      {/* <RecoveryPhraseManager />
-      <PasskeySaveButton />
-      <PasskeyRestoreButton /> */}
       <AccountAuthBar />
       <div className="bg-blue-50 text-center px-1 py-5">
         <h2 className="text-pink-500 font-extrabold">
-          Jazz Local-First Demo (alpha.60)
+          Jazz Local-First Demo (beta.2)
         </h2>
         <button
           onClick={() => setUsePureLoFi(!usePureLoFi)}
@@ -43,7 +35,7 @@ export default function App() {
       </div>
 
       {usePureLoFi ? <TodoListPureLoFi /> : <TodoList />}
-      
+
     </JazzProvider>
   );
 }

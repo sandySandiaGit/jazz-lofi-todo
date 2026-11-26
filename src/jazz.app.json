@@ -1,0 +1,17 @@
+{
+  "$schema": "https://jazz.tools/schemas/jazz.app.v1.json",
+  "$generated": {
+    "by": "jazz-tools generate from schema.ts — edit the TypeScript, not this file",
+    "sha256": "db5e16cedebf85bd395224aaa1748bf13845a0d9035e42dea0e62bf4008cd00c"
+  },
+  "tables": {
+    "categories": {
+      "columns": { "name": "string", "color": "string", "iconKey": "string" },
+      "relations": { "todos": { "reverse": "todos", "relation": "category" } }
+    },
+    "todos": {
+      "columns": { "categoryId": "uuid?", "title": "string", "done": "boolean" },
+      "relations": { "category": { "rel": "categories", "column": "categoryId" } }
+    }
+  }
+}

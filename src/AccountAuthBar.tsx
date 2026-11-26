@@ -1,11 +1,10 @@
 import { useState, useMemo } from "react";
-import { exportLocalFirstSecret } from "jazz-tools";
-import { useJazzAuth } from "jazz-tools/react";
+import { useJazzSession } from "jazz-tools/react";
 import { BrowserPasskeyBackup } from "jazz-tools/passkey-backup";
 import { RecoveryPhrase } from "jazz-tools/passphrase";
 
 export function AccountAuthBar() {
-  const { account, sessionActions } = useJazzAuth();
+  const session = useJazzSession();
 
   const passkeyBackup = useMemo(() => {
     if (typeof window === "undefined") return null;
@@ -35,11 +34,11 @@ export function AccountAuthBar() {
 
   // 1. Save the current account into a Passkey (first visit):
   const handleSavePasskey = async () => {
-    if (!account || !passkeyBackup) return;
+    if (!session || !passkeyBackup) return;
     setLoading(true);
     setFeedback(null);
     try {
-      const secret = exportLocalFirstSecret(account);
+      const secret = session.exportDeviceKey();
       await passkeyBackup.backup(secret, "My Jazz Account");
       markAsSecured();
       setFeedback({ type: "ok", text: "Account saved with your Passkey!" });
@@ -55,12 +54,12 @@ export function AccountAuthBar() {
 
   // 2. Restore an existing account via Passkey (fresh browser):
   const handleRestorePasskey = async () => {
-    if (!sessionActions || !passkeyBackup) return;
+    if (!session || !passkeyBackup) return;
     setLoading(true);
     setFeedback(null);
     try {
       const secret = await passkeyBackup.restore();
-      await sessionActions.restoreLocalFirst(secret);
+      await session.restoreDeviceAccount(secret);
       markAsSecured();
       setFeedback({ type: "ok", text: "Account restored!" });
     } catch (err) {
@@ -75,8 +74,8 @@ export function AccountAuthBar() {
 
   // 3. Generate the recovery phrase:
   const handleShowPhrase = () => {
-    if (!account) return;
-    const secret = exportLocalFirstSecret(account);
+    if (!session) return;
+    const secret = session.exportDeviceKey();
     setGeneratedPhrase(RecoveryPhrase.fromSecret(secret));
     setCopied(false);
   };
@@ -92,12 +91,12 @@ export function AccountAuthBar() {
   // 4. Restore via recovery phrase:
   const handleRestorePhrase = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!sessionActions || !inputPhrase.trim()) return;
+    if (!session || !inputPhrase.trim()) return;
     setLoading(true);
     setFeedback(null);
     try {
       const secret = RecoveryPhrase.toSecret(inputPhrase.trim());
-      await sessionActions.restoreLocalFirst(secret);
+      await session.restoreDeviceAccount(secret);
       markAsSecured();
       setInputPhrase("");
       setFeedback({ type: "ok", text: "Account restored via recovery phrase!" });
@@ -116,7 +115,7 @@ export function AccountAuthBar() {
             <button
               type="button"
               onClick={handleSavePasskey}
-              disabled={loading || !account}
+              disabled={loading || !session}
               className="cursor-pointer rounded-md bg-green-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2 sm:text-sm"
             >
               {loading ? "..." : "Save access (Passkey)"}
@@ -125,7 +124,7 @@ export function AccountAuthBar() {
             <button
               type="button"
               onClick={handleRestorePasskey}
-              disabled={loading || !sessionActions}
+              disabled={loading || !session}
               className="cursor-pointer rounded-md border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2 sm:text-sm"
             >
               I already have a Passkey
@@ -140,9 +139,7 @@ export function AccountAuthBar() {
         {!showAdvanced && (
           <button
             type="button"
-            // React functional update:
             onClick={() => setShowAdvanced((value) => !value)}
-            //OR: onClick={() => setShowAdvanced(true)}
             className="cursor-pointer rounded-md bg-green-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2 sm:text-sm"
           >
             Recovery phrase / Options
@@ -183,7 +180,7 @@ export function AccountAuthBar() {
             <button
               type="button"
               onClick={handleShowPhrase}
-              disabled={!account}
+              disabled={!session}
               className="cursor-pointer rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 sm:py-1.5"
             >
               Show my recovery phrase
@@ -215,7 +212,7 @@ export function AccountAuthBar() {
             />
             <button
               type="submit"
-              disabled={loading || !sessionActions || !inputPhrase.trim()}
+              disabled={loading || !session || !inputPhrase.trim()}
               className="cursor-pointer rounded-md bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 sm:text-sm"
             >
               Restore
@@ -227,7 +224,7 @@ export function AccountAuthBar() {
               <button
                 type="button"
                 onClick={handleSavePasskey}
-                disabled={loading}
+                disabled={loading || !session}
                 className="cursor-pointer rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 sm:px-3 sm:py-1.5"
               >
                 Add another Passkey
@@ -235,7 +232,7 @@ export function AccountAuthBar() {
               <button
                 type="button"
                 onClick={handleRestorePasskey}
-                disabled={loading}
+                disabled={loading || !session}
                 className="cursor-pointer rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 sm:px-3 sm:py-1.5"
               >
                 Load another account

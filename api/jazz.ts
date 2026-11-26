@@ -4,9 +4,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:http';
 
-import { app } from '../src/schema.js';
-import { permissions } from '../src/permissions.js';
-import { createJazz, acceptLocalFirstAuth, remote } from 'jazz-tools/backend';
+import { app } from '../src/jazz.generated.js';
+import permissions from "../src/jazz.permissions.json" with { type: "json" };
+import { createJazz, acceptDeviceAccounts, remote } from 'jazz-tools/backend'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distPath = path.resolve(__dirname, '../dist');
@@ -24,6 +24,11 @@ appExpress.use((_req, res, next) => {
 const server = createServer(appExpress);
 const port = Number(process.env.PORT) || 3001;
 
+// Explicitly set publicUrl on Render; leave undefined locally so Vite's forwarded Host works
+const publicBackendUrl = process.env.RENDER_EXTERNAL_URL
+  ? `${process.env.RENDER_EXTERNAL_URL}/jazz`
+  : undefined;
+
 const appId = process.env.JAZZ_APP_ID || process.env.VITE_JAZZ_APP_ID;
 const secret = process.env.JAZZ_ADMIN_SECRET;
 
@@ -34,7 +39,8 @@ if (!appId || !secret) {
 const jazz = createJazz({
   app,
   permissions,
-  authenticate: acceptLocalFirstAuth,
+  authenticate: acceptDeviceAccounts,
+  publicUrl: publicBackendUrl,
   store: remote({
     appId: appId!,
     url:"https://v2.sync.jazz.tools/",
