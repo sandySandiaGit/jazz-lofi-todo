@@ -10,6 +10,9 @@ import { createServer } from 'node:http'
 const appExpress = express();
 appExpress.use(cors({ origin: '*' }));
 
+const server = createServer(appExpress);
+const port = Number(process.env.PORT) || 3001;
+
 const appId = process.env.JAZZ_APP_ID || process.env.VITE_JAZZ_APP_ID;
 const secret = process.env.JAZZ_ADMIN_SECRET;
 
@@ -32,31 +35,19 @@ const jazz = createJazz({
 
 console.log('[Backend] Jazz initialized successfully, mounting middleware...');
  
+// Root health-check route for Render (GET / -> 200 OK)
+// so Render's automatic health check (GET /) gets an instant 200 OK instead of a 404:
+appExpress.get('/', (_req, res) => res.status(200).send('OK'));
 //Jazz handler:
 appExpress.use('/jazz', (req: any, res: any, next: any) => jazz.nodeHandler(req, res, next));
 
-let exportedHandler: any = appExpress;
+jazz.attach(server).then(() => {
+  console.log('[Backend] Jazz and WebSockets attached successfully!');
+});
 
-if (!process.env.VERCEL) {
+server.listen(port, "0.0.0.0", () => {
+  console.log(`[Backend] Express + WS server listening on port ${port}`);
+});
 
-  // Locally: start the HTTP server and attach WebSockets to it:
-  // En local : on démarre le serveur HTTP et on y attache les WebSockets:
-  const localServer = appExpress.listen(3001, () => {
-    console.log('[Backend] Express server listening on http://localhost:3001');
-  });
-  jazz.attach(localServer).then(() => {
-    console.log('[Backend] Jazz and WebSockets attached successfully!');
-  });
-  
-} else {
-
-  // On Vercel: test with createServer + attach:
-  // Sur Vercel : test avec createServer + attach:
-  const vercelServer = createServer(appExpress);
-  jazz.attach(vercelServer).then(() => {
-    console.log('[Backend] Jazz and WebSockets attached on Vercel!');
-  });
-  exportedHandler = vercelServer;
-}
-
-export default exportedHandler;       
+export default server;  
+    

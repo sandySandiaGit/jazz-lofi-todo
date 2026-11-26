@@ -1,6 +1,5 @@
 {
   "rewrites": [
-    { "source": "/jazz/(.*)", "destination": "/api/jazz" },
     { "source": "/(.*)", "destination": "/index.html" }
    
   ],

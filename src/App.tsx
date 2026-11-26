@@ -19,9 +19,9 @@ export default function App() {
 
       client={() => import("jazz-tools/local-first")}
       scope={appId}
-      serverUrl="/jazz"
-      initial="local-first"
-     
+      //serverUrl="/jazz"
+      serverUrl={import.meta.env.VITE_JAZZ_SERVER_URL || "/jazz"}
+      initial="local-first" 
     >
       {/* <RecoveryPhraseManager />
       <PasskeySaveButton />
