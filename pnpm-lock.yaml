@@ -27,8 +27,8 @@ importers:
         specifier: ^5.3.0
         version: 5.3.0
       jazz-tools:
-        specifier: 2.0.0-beta.2
-        version: 2.0.0-beta.2(react@19.2.8)(ws@8.22.2)
+        specifier: 2.0.0-beta.5
+        version: 2.0.0-beta.5(react@19.2.8)(ws@8.22.2)
       react:
         specifier: ^19.2.8
         version: 19.2.8
@@ -530,30 +530,30 @@ packages:
       '@fortawesome/fontawesome-svg-core': ~6 || ~7
       react: ^18.0.0 || ^19.0.0
 
-  '@garden-co/jazz-napi-darwin-arm64@2.0.0-beta.2':
-    resolution: {integrity: sha512-ron/La5AcT0nI88HQ8w8x/KPR8560zE1iPoexCDktZxPpLXXgBbFPF04f66SFmgSIioefWWDPnuPu4ksWw230Q==}
+  '@garden-co/jazz-napi-darwin-arm64@2.0.0-beta.5':
+    resolution: {integrity: sha512-+xZW02yAYjJVwpryi20xcMZVuUc2lnGV+GCzuuKdHmQN5YyQoGZKLqFuAlLcC+v7hxHqEb/ciJTlomq1f0iKWg==}
     cpu: [arm64]
     os: [darwin]
 
-  '@garden-co/jazz-napi-darwin-x64@2.0.0-beta.2':
-    resolution: {integrity: sha512-KNsjdOss3XCOUx45zP4gEDXQ7IL12w4sZfuUmjO7UH3tBPKnu66MipvHx7pcBpn1efzosxPclisrWaMswR560Q==}
+  '@garden-co/jazz-napi-darwin-x64@2.0.0-beta.5':
+    resolution: {integrity: sha512-2BScApgY9eJSseKNypfkVxknXjjFgfu815K7KywseyFyq09BRAruFk34p5TUbFO4N7e5Sr18Ze84prs8dRRpWA==}
     cpu: [x64]
     os: [darwin]
 
-  '@garden-co/jazz-napi-linux-arm64-gnu@2.0.0-beta.2':
-    resolution: {integrity: sha512-DK1RuoFZ44WzDSmwV+McfTh7Le6UZZRK4OHYhU1hpVnxOqimRbFKqyXwaRstqqgjpwlmPrI5CGYhA+kypsw6dA==}
+  '@garden-co/jazz-napi-linux-arm64-gnu@2.0.0-beta.5':
+    resolution: {integrity: sha512-ffJdB01d0Z1k8vnFMb5Ic9h3LNi4PR+QxMMYy4C778MndrNj8An5wThFNl0Rp3KAm6G3Mzj94Y28LvaVnQd7qA==}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@garden-co/jazz-napi-linux-x64-gnu@2.0.0-beta.2':
-    resolution: {integrity: sha512-6cIVapfwltBkGAUkHXRztNd4uk/aH4zTWnprmPNjTfMobLcdoJmJdRVD/GRAjAvH/n3ugj6ysH0iYy9Wmmuiog==}
+  '@garden-co/jazz-napi-linux-x64-gnu@2.0.0-beta.5':
+    resolution: {integrity: sha512-IQQC/t6AMrPTUExtKvXZoyXefICAvqZKmg/hez7x/g811Ngk/YufTXWoj0AaCGTD5ejG3TgEokHO557tvH8oBw==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@garden-co/jazz-napi-win32-x64-msvc@2.0.0-beta.2':
-    resolution: {integrity: sha512-VznLBKTtukmgAQE3CaAZFRaUCkOXDDjhk6BDJmPQxtFNLp5SqxOiaiDvKbvWbFOCMnTdWXmzxAEiv6LEU12nLw==}
+  '@garden-co/jazz-napi-win32-x64-msvc@2.0.0-beta.5':
+    resolution: {integrity: sha512-u9N6Os8ZVMIeW59SUm6XIFNPXs3ttGii/UWrsdTQEhLJvK9inwMqztD+FtT1pUFs7vz96d2LPJ8FqxZgMWPrcQ==}
     cpu: [x64]
     os: [win32]
 
@@ -1438,11 +1438,11 @@ packages:
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
-  jazz-napi@2.0.0-beta.2:
-    resolution: {integrity: sha512-P8ps3AzIxKbFLJS57iVzAkZ4LFuQRGc4VTK6FVspU5NPwjzYzLF2uThWf4HHgEWFYmeoMhsYaN9j4UNzpOB0rw==}
+  jazz-napi@2.0.0-beta.5:
+    resolution: {integrity: sha512-dH/r/5v+/32gQsCdVe+8RuF9Au2rf4xEE79AqkTbdVSvhLCFJRkfA6UQyfeQITSd+nJTjR+1kr4Bijkq1Z75Uw==}
 
-  jazz-tools@2.0.0-beta.2:
-    resolution: {integrity: sha512-5xRH515lUVlXNpcojk4Ihnz2r4xJlHPImb8+HJI3EpD0MgyLKW++ybOh0/Nt+BeK0up65Co5bYOvnTiVXuPKEQ==}
+  jazz-tools@2.0.0-beta.5:
+    resolution: {integrity: sha512-WbBKiPzbF8/j/8LynWzITyK0yI9lTMCA6FjgqgDQF3Eqnl+gRiYOm8iBx96xszLtIbJSDtDzYh4wxWTQPF5yVw==}
     engines: {node: '>=22.18'}
     hasBin: true
     peerDependencies:
@@ -1453,7 +1453,7 @@ packages:
       expo: '>=54'
       expo-crypto: '>=14.0.0'
       expo-secure-store: '>=14.0.0'
-      jazz-rn: 2.0.0-beta.2
+      jazz-rn: 2.0.0-beta.5
       prosemirror-model: ^1.22.0
       prosemirror-state: ^1.4.0
       prosemirror-view: ^1.33.0
@@ -1499,8 +1499,8 @@ packages:
       ws:
         optional: true
 
-  jazz-wasm@2.0.0-beta.2:
-    resolution: {integrity: sha512-ITfVxPkjrLyhTyEeKSrW+ts3Paq9Fc+wtEw7NjjIwgkCBbaVkaU0ntJFr+zb9kQX5dNjQdOCaxO8c8T3LLYbTw==}
+  jazz-wasm@2.0.0-beta.5:
+    resolution: {integrity: sha512-m9iw18y2nKmfuaUHYMugdqwcvv5OisWXhR2dHA4xqWgir+xYgE7h0EyF2gpAncxlZDpWu/S9o5PiLqqqrkqlnw==}
 
   jiti@2.7.0:
     resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
@@ -2378,19 +2378,19 @@ snapshots:
       '@fortawesome/fontawesome-svg-core': 7.3.1
       react: 19.2.8
 
-  '@garden-co/jazz-napi-darwin-arm64@2.0.0-beta.2':
+  '@garden-co/jazz-napi-darwin-arm64@2.0.0-beta.5':
     optional: true
 
-  '@garden-co/jazz-napi-darwin-x64@2.0.0-beta.2':
+  '@garden-co/jazz-napi-darwin-x64@2.0.0-beta.5':
     optional: true
 
-  '@garden-co/jazz-napi-linux-arm64-gnu@2.0.0-beta.2':
+  '@garden-co/jazz-napi-linux-arm64-gnu@2.0.0-beta.5':
     optional: true
 
-  '@garden-co/jazz-napi-linux-x64-gnu@2.0.0-beta.2':
+  '@garden-co/jazz-napi-linux-x64-gnu@2.0.0-beta.5':
     optional: true
 
-  '@garden-co/jazz-napi-win32-x64-msvc@2.0.0-beta.2':
+  '@garden-co/jazz-napi-win32-x64-msvc@2.0.0-beta.5':
     optional: true
 
   '@humanfs/core@0.19.2':
@@ -3289,16 +3289,16 @@ snapshots:
 
   isexe@2.0.0: {}
 
-  jazz-napi@2.0.0-beta.2:
+  jazz-napi@2.0.0-beta.5:
     optionalDependencies:
-      '@garden-co/jazz-napi-darwin-arm64': 2.0.0-beta.2
-      '@garden-co/jazz-napi-darwin-x64': 2.0.0-beta.2
-      '@garden-co/jazz-napi-linux-arm64-gnu': 2.0.0-beta.2
-      '@garden-co/jazz-napi-linux-x64-gnu': 2.0.0-beta.2
-      '@garden-co/jazz-napi-win32-x64-msvc': 2.0.0-beta.2
+      '@garden-co/jazz-napi-darwin-arm64': 2.0.0-beta.5
+      '@garden-co/jazz-napi-darwin-x64': 2.0.0-beta.5
+      '@garden-co/jazz-napi-linux-arm64-gnu': 2.0.0-beta.5
+      '@garden-co/jazz-napi-linux-x64-gnu': 2.0.0-beta.5
+      '@garden-co/jazz-napi-win32-x64-msvc': 2.0.0-beta.5
     optional: true
 
-  jazz-tools@2.0.0-beta.2(react@19.2.8)(ws@8.22.2):
+  jazz-tools@2.0.0-beta.5(react@19.2.8)(ws@8.22.2):
     dependencies:
       '@noble/curves': 2.0.1
       '@noble/hashes': 2.0.1
@@ -3312,19 +3312,19 @@ snapshots:
       '@standard-schema/spec': 1.1.0
       esbuild: 0.27.7
       fs-native-extensions: 1.5.0
-      jazz-wasm: 2.0.0-beta.2
+      jazz-wasm: 2.0.0-beta.5
       jose: 6.2.10
       tr46: 5.1.1
       web-streams-polyfill: 4.3.0
       whatwg-url-without-unicode: 8.0.0-3
     optionalDependencies:
-      jazz-napi: 2.0.0-beta.2
+      jazz-napi: 2.0.0-beta.5
       react: 19.2.8
       ws: 8.22.2
     transitivePeerDependencies:
       - bare-url
 
-  jazz-wasm@2.0.0-beta.2: {}
+  jazz-wasm@2.0.0-beta.5: {}
 
   jiti@2.7.0: {}
 
