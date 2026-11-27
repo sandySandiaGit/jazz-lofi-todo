@@ -21,7 +21,7 @@ export default function App() {
       <AccountAuthBar />
       <div className="bg-blue-50 text-center px-1 py-5">
         <h2 className="text-pink-500 font-extrabold">
-          Jazz Local-First Demo (beta.2)
+          Jazz Local-First Demo (beta)
         </h2>
         <button
           onClick={() => setUsePureLoFi(!usePureLoFi)}
