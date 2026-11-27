@@ -2,7 +2,7 @@
 
 # Jazz v2 (beta) and React 19 FullyLoFi Very Tiny To-Do App
 
-A modern, fast, and offline-capable micro To-Do application built with **Jazz.tools v2 (beta.2)**, **React 19**, **Vite**, and **Tailwind CSS**. 
+A modern, fast, and offline-capable micro To-Do application built with **Jazz.tools v2 (beta.5)**, **React 19**, **Vite**, and **Tailwind CSS**. 
 
 The main purpose of this project was to experiment with **Jazz v2** 💙 and celebrate a deep passion for the **LoFi Philosophy** 💗. It demonstrates a true **Local-First architecture** paired with a custom **Cache-First Service Worker** to deliver **instant UI updates** and **seamless offline capabilities**.
 
@@ -25,7 +25,7 @@ The main purpose of this project was to experiment with **Jazz v2** 💙 and cel
 * **Passkey & Recovery Phrase Identity Management**: Seamless account creation and session restoration using a **Passkey button** or a **Recovery Phrase manager**, ensuring persistent user identity across devices and browser sessions (see "Other UI Screenshots" section at the end of the README)
 * **Dual UI Paradigm Exploration**: Interactive toggle between traditional controlled React state and an approach leveraging native HTML `FormData` and React 19 actions.
 
-> 💡 **Architectural Evolution Note (v2 alpha.60 → 2.0.0-beta.2 & Render Hosting):**
+> 💡 **Architectural Evolution Note (v2 alpha.60 => 2.0.0-beta.2 & Render Hosting):**
 >
 > Prior to `2.0.0-alpha.60`, Jazz apps could operate in a standalone "backendless" client model. With the **integration of SQLite in alpha.60**, the tiny app evolved into an embedded serverless proxy architecture using a lightweight, same-origin **Thin Serverless Backend Proxy** (`api/jazz.ts` mounted on `/jazz`) to handle authentication and route CRDT sync mesh traffic.
 >
@@ -124,7 +124,7 @@ This project is built strictly for **educational, non-commercial portfolio purpo
 ## Tech Stack
 
 * **Frontend Framework**: React 19, Vite, Tailwind CSS
-* **Local-First Engine**: `jazz-tools` (`2.0.0-beta.2`)
+* **Local-First Engine**: `jazz-tools` (`2.0.0-beta.5`)
 * **Local Storage & Database Engine**: Embedded **SQLite** (via WebAssembly (WASM)) persisted in **IndexedDB** (`jazz-idb`) & **OPFS**
 * **Backend Architecture**: Express / Vercel **Serverless** Function backend proxy (`api/jazz.ts`) mounted on `/jazz`
 * **Backend Architecture**: Persistent Express + WebSocket backend proxy (`api/jazz.ts`) mounted on `/jazz` (also serving the built Vite static frontend)
@@ -179,8 +179,8 @@ pnpm build
 pnpm preview
 ```
 
-> 💡 **Note on Testing Offline Sync (`beta.2`):**
-> Browser DevTools network emulation (such as *Network > Offline* or *Application > Service Workers > Offline checkbox*) may not fully intercept background WebSocket channels or local inter-tab worker sync used by Jazz `beta.2`.
+> 💡 **Note on Testing Offline Sync (`beta.5`):**
+> Browser DevTools network emulation (such as *Network > Offline* or *Application > Service Workers > Offline checkbox*) may not fully intercept background WebSocket channels or local inter-tab worker sync used by Jazz `beta.5`.
 > 
 > To properly test offline mode and multi-device synchronization resilience, please test by temporarily **disabling your device's Wi-Fi / Ethernet connection** or switching to **Airplane Mode**.
 
